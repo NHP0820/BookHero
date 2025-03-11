@@ -48,27 +48,67 @@ include '../_head.php';
         <button onclick="showTable('done', this)">Done</button>
     </nav>
     <div id="pending-payment" class="order-table">
+    <?php 
+    $groupedOrders = [];
+    foreach ($orderlist as $orderItem) {
+        $groupedOrders[$orderItem->order_id][] = $orderItem;
+    }
+    ?>
 
-        <?php foreach ($orderlist as $orderItem): ?>
-
-            <div class="product-item">
-                <img src="data:image/jpeg;base64,<?= base64_encode($orderItem->product_photo) ?>" width="180px" alt="Product Image">
-                <div class="product-details">
-                    <h3><?= $orderItem->product_name ?></h3>
-                    <p><?= $orderItem->product_description ?></p>
-                    <?php 
-                   $productList = $_db->prepare('SELECT * FROM product WHERE product_id = ?'); 
-                   $productList->execute([$orderItem->product_id]);
-                   $product = $productList->fetch(PDO::FETCH_ASSOC); 
-                 
-                    ?>
-                    <p class="price"><del><?php if($product['price'] != $orderItem->price_at_purchase){echo "RM ".$product['price'];} ?></del> RM<?= $orderItem->price_at_purchase ?></p>
-                </div>
+    <?php foreach ($groupedOrders as $orderId => $products): ?>
+        <?php 
+        $totalAmount = array_sum(array_map(function($product) {
+            return $product->price_at_purchase;
+        }, $products));
+        ?>
+        <details class="order-dropdown">
+            <summary style="display: flex; justify-content: space-between;">
+                <span>Order No :  <?= $orderId ?></span>
+                <span class="total-amount">Total: RM<?= $totalAmount ?></span>
+                <a href="payment.php?order_id=<?= $orderId ?>" class="pay-button">Pay</a>
+            </summary>
+            <div class="order-products">
+                <?php foreach ($products as $orderItem): ?>
+                    <div class="product-item">
+                        <img src="data:image/jpeg;base64,<?= base64_encode($orderItem->product_photo) ?>" width="180px" alt="Product Image">
+                        <div class="product-details">
+                            <h3><?= $orderItem->product_name ?></h3>
+                            <p><?= $orderItem->product_description ?></p>
+                            <p>x  <?= $orderItem->quantity ?></p>
+                            <?php 
+                            $productList = $_db->prepare('SELECT price FROM product WHERE product_id = ?'); 
+                            $productList->execute([$orderItem->product_id]);
+                            $product = $productList->fetch(PDO::FETCH_ASSOC);
+                            ?>
+                            <p class="price-container">
+                                <span class="price">
+                                    <del><?php if($product['price'] != $orderItem->price_at_purchase) echo "RM " . $product['price']; ?></del>
+                                    RM<?= $orderItem->price_at_purchase ?>
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
-        <?php endforeach ?>
-    </div>
+            <div class="order-total">Total: RM<?= $totalAmount ?></div>
+        </details>
+    <?php endforeach; ?>
+</div>
+
+
+
+
+
+
+
+
+
+
+
 
     <div id="pending-delivery" class="order-table">
+
+
         <div class="product-item">
             <img src="product2.jpg" alt="Product Image" class="product-image">
             <div class="product-details">
@@ -77,9 +117,13 @@ include '../_head.php';
                 <p class="price"><del>RM150.00</del> RM99.00</p>
             </div>
         </div>
+
+
     </div>
 
     <div id="done" class="order-table">
+
+
         <div class="product-item">
             <img src="product3.jpg" alt="Product Image" class="product-image">
             <div class="product-details">
@@ -88,6 +132,8 @@ include '../_head.php';
                 <p class="price"><del>RM1200.00</del> RM899.00</p>
             </div>
         </div>
+
+
     </div>
 
 
