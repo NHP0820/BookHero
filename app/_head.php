@@ -40,26 +40,6 @@
     <nav>
         <div class="nav-links">
             <a href="/">Home Page</a>
-            <div class="dropdown"><a href="/">Category</a>
-                <?php $categoryArr = $_db->query('SELECT * FROM category')->fetchAll(); ?>
-                <div class="dropdown-category">
-                    <?php foreach ($categoryArr as $category): ?>
-                        <a href="/"><?= $category->name ?></a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            <a href="/"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
-        </div>
-        <?php if (basename($_SERVER['PHP_SELF']) == 'index.php'): ?>
-            <div class="topnav">
-                <div class="search-container">
-                    <form action="/action_page.php">
-                    <input type="text" placeholder="Search.." name="search">
-                    <button type="submit"><i class="fa fa-search"></i></button>
-                    </form>
-                </div>
-            </div>
-        <?php endif; ?>
             <div class="dropdown"><a href="/">Category
                 <div class="dropdown-category">
                     <?php $categoryArr = $_db->query('SELECT * FROM category')->fetchAll(); ?>
@@ -70,13 +50,17 @@
             </div>
             <a href="/">Cart</a>
         </div>
-        <div class="topnav">
-            <div class="search-container">
-                <form action="/action_page.php">
-                <input type="text" placeholder="Search.." name="search">
-                <button type="submit"><i class="fa fa-search"></i></button>
-                </form>
-            </div>
+        <div class="search-container">
+            <?php if (basename($_SERVER['PHP_SELF']) == 'index.php'): ?>
+                <div class="topnav">
+                    <div class="search-container">
+                        <form action="/action_page.php">
+                        <input type="text" placeholder="Search.." name="search">
+                        <button type="submit"><i class="fa fa-search"></i></button>
+                        </form>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </nav>
 
