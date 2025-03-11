@@ -18,7 +18,6 @@
         <h1><a href="/">BookHero</a></h1>
 
         <div class="dropdown">
-<<<<<<< HEAD
             <?php 
             if (!isset($_SESSION['user'])):
             ?>
@@ -35,7 +34,7 @@
                     <a href="#">Logout</a>
                 </div>
             <?php endif;?>
-=======
+
             <button class="dropbtn">Menu</button>
             <div class="dropdown-content">
                 <a href="#">Login</a>
@@ -44,14 +43,14 @@
                 <a href="#">Whishlist</a>
                 <a href="#">Logout</a>
             </div>
->>>>>>> 401e6a205fbe09eccfcbf2ddf14b4cf9de236cae
+
         </div>
     </header>
 
     <nav>
         <div class="nav-links">
             <a href="/">Home Page</a>
-<<<<<<< HEAD
+
             <div class="dropdown"><a href="/">Category</a>
                 <?php $categoryArr = $_db->query('SELECT * FROM category')->fetchAll(); ?>
                 <div class="dropdown-category">
@@ -72,8 +71,8 @@
                 </div>
             </div>
         <?php endif; ?>
-=======
-            <div class="dropdown"><a href="/">Category
+
+            <div class="dropdown"><a href="/">
                 <div class="dropdown-category">
                     <?php $categoryArr = $_db->query('SELECT * FROM category')->fetchAll(); ?>
                     <?php foreach ($categoryArr as $category): ?>
@@ -91,7 +90,7 @@
                 </form>
             </div>
         </div>
->>>>>>> 401e6a205fbe09eccfcbf2ddf14b4cf9de236cae
+
     </nav>
 
     <main>
