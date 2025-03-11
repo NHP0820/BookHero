@@ -40,76 +40,80 @@ include '_head.php';
 ?>
 <link rel="stylesheet" href="/css/orders.css">
 </head>
+
 <body>
-<nav class="order-nav">
-    <button onclick="showTable('pending-payment', this)" class="active">Pending Payment</button>
-    <button onclick="showTable('pending-delivery', this)">Pending Delivery</button>
-    <button onclick="showTable('done', this)">Done</button>
-</nav>
-<div id="pending-payment" class="order-table">
+    <nav class="order-nav">
+        <button onclick="showTable('pending-payment', this)" class="active">Pending Payment</button>
+        <button onclick="showTable('pending-delivery', this)">Pending Delivery</button>
+        <button onclick="showTable('done', this)">Done</button>
+    </nav>
+    <div id="pending-payment" class="order-table">
 
-    <?php foreach ($orderlist as $orderItem): ?>
+        <?php foreach ($orderlist as $orderItem): ?>
 
-    <div class="product-item">
-       <img src="data:image/jpeg;base64,<?= base64_encode($orderItem->product_photo) ?>" width="180px" alt="Product Image">
-        <div class="product-details">
-            <h3><?= $orderItem->product_name ?></h3>
-            <p><?= $orderItem->product_description ?></p>
-            <?php $productList = $_db->prepare('SELECT * FROM product WHERE product_id = ?'); 
-                $productList->execute([$orderItem->product_id])
-            ?>
-            <p class="price"><del></del> RM<?= $orderItem->price_at_purchase ?></p>
+            <div class="product-item">
+                <img src="data:image/jpeg;base64,<?= base64_encode($orderItem->product_photo) ?>" width="180px" alt="Product Image">
+                <div class="product-details">
+                    <h3><?= $orderItem->product_name ?></h3>
+                    <p><?= $orderItem->product_description ?></p>
+                    <?php 
+                   $productList = $_db->prepare('SELECT * FROM product WHERE product_id = ?'); 
+                   $productList->execute([$orderItem->product_id]);
+                   $product = $productList->fetch(PDO::FETCH_ASSOC); 
+                   
+                    ?>
+                    <p class="price"><del><?php if($product->price != $orderItem->price_at_purchase){echo $product->price;} ?></del> RM<?= $orderItem->price_at_purchase ?></p>
+                </div>
+            </div>
+        <?php endforeach ?>
+    </div>
+
+    <div id="pending-delivery" class="order-table">
+        <div class="product-item">
+            <img src="product2.jpg" alt="Product Image" class="product-image">
+            <div class="product-details">
+                <h3>Wireless Bluetooth Earphones</h3>
+                <p>Black, Noise Cancelling</p>
+                <p class="price"><del>RM150.00</del> RM99.00</p>
+            </div>
         </div>
     </div>
-    <?php endforeach ?>
-</div>
 
-<div id="pending-delivery" class="order-table">
-    <div class="product-item">
-        <img src="product2.jpg" alt="Product Image" class="product-image">
-        <div class="product-details">
-            <h3>Wireless Bluetooth Earphones</h3>
-            <p>Black, Noise Cancelling</p>
-            <p class="price"><del>RM150.00</del> RM99.00</p>
+    <div id="done" class="order-table">
+        <div class="product-item">
+            <img src="product3.jpg" alt="Product Image" class="product-image">
+            <div class="product-details">
+                <h3>Smartwatch Series 7</h3>
+                <p>Silver, GPS + Cellular</p>
+                <p class="price"><del>RM1200.00</del> RM899.00</p>
+            </div>
         </div>
     </div>
-</div>
-
-<div id="done" class="order-table">
-    <div class="product-item">
-        <img src="product3.jpg" alt="Product Image" class="product-image">
-        <div class="product-details">
-            <h3>Smartwatch Series 7</h3>
-            <p>Silver, GPS + Cellular</p>
-            <p class="price"><del>RM1200.00</del> RM899.00</p>
-        </div>
-    </div>
-</div>
 
 
-<style>
-    .order-table {
-        display: none;
-    }
-</style>
+    <style>
+        .order-table {
+            display: none;
+        }
+    </style>
 
-<script>
-    function showTable(tableId, button) {
-        document.querySelectorAll('.order-table').forEach(table => {
-            table.style.display = 'none';
-        });
-        document.getElementById(tableId).style.display = 'block';
+    <script>
+        function showTable(tableId, button) {
+            document.querySelectorAll('.order-table').forEach(table => {
+                table.style.display = 'none';
+            });
+            document.getElementById(tableId).style.display = 'block';
 
-        document.querySelectorAll('.order-nav button').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        button.classList.add('active');
-    }
-    
-    // 默认显示第一个表格
-    showTable('pending-payment', document.querySelector('.order-nav button'));
-</script>
+            document.querySelectorAll('.order-nav button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+        }
+
+        // 默认显示第一个表格
+        showTable('pending-payment', document.querySelector('.order-nav button'));
+    </script>
 
 
-<?php
-include "_foot.php";
+    <?php
+    include "_foot.php";

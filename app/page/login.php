@@ -50,7 +50,7 @@ $_title = 'Login'
 </style>
 
 <form method="post" class="form">
-    <h1><?= $_title ?></h1>
+    <h1>Welcome to <?= $_title ?></h1>
     <label for="username">User Name</label>
     <?= html_text('username') ?>
     <?= err('username') ?>

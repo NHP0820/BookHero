@@ -29,20 +29,11 @@
                 <button class="dropbtn"><?= htmlspecialchars($_SESSION['user']['username']) ?></button>
                 <div class="dropdown-content"></div>
                     <a href="#">Profile</a>
-                    <a href="#">Orders</a>
+                    <a href="../order">Orders</a>
                     <a href="#">Whishlist</a>
                     <a href="#">Logout</a>
                 </div>
             <?php endif;?>
-
-            <button class="dropbtn">Menu</button>
-            <div class="dropdown-content">
-                <a href="#">Login</a>
-                <a href="#">Profile</a>
-                <a href="/orders.php">Orders</a>
-                <a href="#">Whishlist</a>
-                <a href="#">Logout</a>
-            </div>
 
         </div>
     </header>
@@ -72,7 +63,9 @@
             </div>
         <?php endif; ?>
 
+
             <div class="dropdown"><a href="/">
+            <div class="dropdown"><a href="/">Category
                 <div class="dropdown-category">
                     <?php $categoryArr = $_db->query('SELECT * FROM category')->fetchAll(); ?>
                     <?php foreach ($categoryArr as $category): ?>
