@@ -1,5 +1,5 @@
 <?php
-require '_base.php';
+require '../_base.php';
 //-----------------------------------------------------------------------------
 
 $arr = $_db->query('SELECT * FROM product')->fetchAll();
@@ -36,7 +36,7 @@ $orderlist->execute([$user_id]);
 
 
 // ----------------------------------------------------------------------------
-include '_head.php';
+include '../_head.php';
 ?>
 <link rel="stylesheet" href="/css/orders.css">
 </head>
@@ -60,9 +60,9 @@ include '_head.php';
                    $productList = $_db->prepare('SELECT * FROM product WHERE product_id = ?'); 
                    $productList->execute([$orderItem->product_id]);
                    $product = $productList->fetch(PDO::FETCH_ASSOC); 
-                   
+                 
                     ?>
-                    <p class="price"><del><?php if($product->price != $orderItem->price_at_purchase){echo $product->price;} ?></del> RM<?= $orderItem->price_at_purchase ?></p>
+                    <p class="price"><del><?php if($product['price'] != $orderItem->price_at_purchase){echo "RM ".$product['price'];} ?></del> RM<?= $orderItem->price_at_purchase ?></p>
                 </div>
             </div>
         <?php endforeach ?>
@@ -116,4 +116,4 @@ include '_head.php';
 
 
     <?php
-    include "_foot.php";
+    include "../_foot.php";
