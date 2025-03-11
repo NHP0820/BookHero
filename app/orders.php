@@ -56,7 +56,7 @@ include '_head.php';
             <h3><?= $orderItem->product_name ?></h3>
             <p><?= $orderItem->product_description ?></p>
             <?php $productList = $_db->prepare('SELECT * FROM product WHERE product_id = ?'); 
-                $productList->execute([])
+                $productList->execute([$orderItem->product_id])
             ?>
             <p class="price"><del></del> RM<?= $orderItem->price_at_purchase ?></p>
         </div>
