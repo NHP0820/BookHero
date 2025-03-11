@@ -346,12 +346,10 @@ form css
 }
 
 .form input[type="text"],
-<<<<<<< HEAD
 .form select, 
-.form input[type="password"]{
-=======
+.form input[type="password"]
+
 .form select {
->>>>>>> 401e6a205fbe09eccfcbf2ddf14b4cf9de236cae
     width: 100%;
     padding: 8px;
     margin-top: 5px;
@@ -392,7 +390,6 @@ form css
 .form button[type="reset"]:hover {
     background-color: #999;
 }
-<<<<<<< HEAD
 
 .form .register{
     text-decoration: none;
@@ -412,7 +409,5 @@ form css
 .password-container button {
     border: none;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 16px; 
 }
-=======
->>>>>>> 401e6a205fbe09eccfcbf2ddf14b4cf9de236cae

@@ -70,15 +70,12 @@ function encode($value) {
     return htmlentities($value);
 }
 
-<<<<<<< HEAD
 // Generate <input type='password'>
 function html_password($key, $attr = '') {
     $value = encode($GLOBALS[$key] ?? '');
     echo "<input type='password' id='$key' name='$key' value='$value' $attr>";
 }
 
-=======
->>>>>>> 401e6a205fbe09eccfcbf2ddf14b4cf9de236cae
 // Generate <input type='text'>
 function html_text($key, $attr = '') {
     $value = encode($GLOBALS[$key] ?? '');
@@ -155,9 +152,6 @@ function is_exists($value, $table, $field) {
     $stm = $_db->prepare("SELECT COUNT(*) FROM $table WHERE $field = ?");
     $stm->execute([$value]);
     return $stm->fetchColumn() > 0;
-<<<<<<< HEAD
-}
-=======
 }
 
 // ============================================================================
@@ -177,4 +171,3 @@ $_programs = [
     'RST' => 'Interactive Software Technology',
     'RSW' => 'Software Engineering',
 ];
->>>>>>> 401e6a205fbe09eccfcbf2ddf14b4cf9de236cae
