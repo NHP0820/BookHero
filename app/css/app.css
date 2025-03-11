@@ -411,3 +411,42 @@ form css
     cursor: pointer;
     font-size: 16px; 
 }
+
+/*Search Bar*/
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;}
+
+nav a {
+    text-decoration: none;
+    margin-right: 15px;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+}
+
+.search-container input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-container button {
+    padding: 5px;
+    background: #ddd;
+    border: none;
+    cursor: pointer;
+}
+
+.search-container button:hover {
+    background: #ccc;
+}
