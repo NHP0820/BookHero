@@ -347,9 +347,7 @@ form css
 
 .form input[type="text"],
 .form select, 
-.form input[type="password"]
-
-.form select {
+.form input[type="password"]{
     width: 100%;
     padding: 8px;
     margin-top: 5px;
