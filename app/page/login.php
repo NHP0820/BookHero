@@ -18,20 +18,20 @@ if (is_post()) {
     }
 
     // Validate password (Only check if username is valid)
-    if ($_err['username'] == 'Username or email not found'){
-        $password = '';
+    if (isset($_err['username'])) {
         $_err['password'] = '';
-    }elseif ($password == '') {
+    } elseif ($password == '') {
         $_err['password'] = 'Required';
-    } elseif ($user && !password_verify($password, $user->password)) {
+    } elseif (!password_verify($password, $user->password)) {
         $_err['password'] = 'Password Incorrect';
     }
 
     // Output
     if (!$_err) {
         session_start();
-        $_SESSION['user_id'] = $user->user_id;
-        $_SESSION['username'] = $user->username;
+        $_SESSION['user'] = [
+            'username' => $user->username
+        ];
 
         temp('info', "$username, Welcome to BookHero");
 
@@ -45,12 +45,6 @@ if (is_post()) {
 include "../_head.php";
 $_title = 'Login'
 ?>
-
-<style>
-    nav a{
-        display: none;
-    }
-</style>
 
 <form method="post" class="form">
     <h1>Welcome to <?= $_title ?></h1>

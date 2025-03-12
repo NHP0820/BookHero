@@ -18,20 +18,18 @@
         <h1><a href="/">BookHero</a></h1>
 
         <div class="dropdown">
-            <?php 
-            if (!isset($_SESSION['user'])):
-            ?>
+            <?php if (!isset($_SESSION['user'])):?>
                 <button class="dropbtn">GUEST</button>
                 <div class="dropdown-content">
                     <a href="/page/login.php">Login</a>
                 </div>
             <?php else: ?>
                 <button class="dropbtn"><?= htmlspecialchars($_SESSION['user']['username']) ?></button>
-                <div class="dropdown-content"></div>
+                <div class="dropdown-content">
                     <a href="#">Profile</a>
-                    <a href="../order">Orders</a>
+                    <a href="/page/order.php">Orders</a>
                     <a href="#">Whishlist</a>
-                    <a href="#">Logout</a>
+                    <a href="/page/logout.php">Logout</a>
                 </div>
             <?php endif;?>
 
@@ -41,15 +39,20 @@
     <nav>
         <div class="nav-links">
             <a href="/">Home Page</a>
-            <div class="dropdown"><a href="/">Category
+            <div class="dropdown"><a href="/">Category</a>
                 <div class="dropdown-category">
                     <?php $categoryArr = $_db->query('SELECT * FROM category')->fetchAll(); ?>
                     <?php foreach ($categoryArr as $category): ?>
                         <a href="/"><?= $category->name ?></a>
                     <?php endforeach; ?>
-                </div></a>
+                </div>
             </div>
-            <a href="/">Cart</a>
+            <?php if (!isset($_SESSION['user'])): ?>
+                <a href="/page/login.php">Cart</a>
+            <?php else: ?>
+                <a href="/">Cart</a>
+            <?php endif; ?>
+            
         </div>
         <div class="search-container">
             <?php if (basename($_SERVER['PHP_SELF']) == 'index.php'): ?>
