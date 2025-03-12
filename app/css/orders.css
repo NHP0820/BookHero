@@ -123,3 +123,9 @@
 .pay-button {
     margin-left: auto; 
 }
+
+
+.order-table {
+    display: none;
+}
+
