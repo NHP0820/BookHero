@@ -303,30 +303,6 @@ $orderlist->execute([$user_id]);
     </div>
 
 
-
-
-
-
-
-
-
-    
-    <div id="done" class="order-table">
-
-
-        <div class="product-item">
-            <img src="product3.jpg" alt="Product Image" class="product-image">
-            <div class="product-details">
-                <h3>Smartwatch Series 7</h3>
-                <p>Silver, GPS + Cellular</p>
-                <p class="price"><del>RM1200.00</del> RM899.00</p>
-            </div>
-        </div>
-
-
-    </div>
-
-
     <style>
         .order-table {
             display: none;
