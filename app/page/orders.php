@@ -55,7 +55,7 @@ $totalUnpay = $result['total'];
         <button onclick="showTable('pending-payment', this)" class="active">Pending Payment <span style="color: red;" >(<?= $totalUnpay ?>) </span> </button>
         <button onclick="showTable('pending-delivery', this)">Pending Delivery</button>
         <button onclick="showTable('done', this)">Done</button>
-        <button onclick="showTable('cancel', this)">Cancel</button>
+        <button onclick="showTable('cancel', this)">Cancelled</button>
     </nav>
     <div id="pending-payment" class="order-table">
         <?php
