@@ -2,7 +2,30 @@
 require "../_base.php";
 
 if (is_post()) {
+    $username = post('username');
+    $email = post('email');
+    $password = post('password');
+    $confirmPassword = post('confirmPassword');
 
+    if ($username = ''){
+        $_err['username'] = 'Required';
+    }
+
+    if ($email = ''){
+        $_err['email'] = 'Required';
+    }
+
+    if ($password = ''){
+        $_err['password'] = 'Required';
+    }
+
+    if ($confirmPassword = ''){
+        $_err['confirmPassword'] = 'Required';
+    }
+
+    if (!$_err){
+
+    }
 }
 
 include "../_head.php";
@@ -35,7 +58,7 @@ $_title = 'Login'
 
     <label for="confirmPassword">Confirm Password</label>
     <div class="password-container">
-        <?= html_password('confirmPassword', 'id="confirmPassword"') ?>
+        <?= html_password('password', 'id="password"') ?>
         <button type="button" id="togglePassword">
             <i class="fa fa-eye"></i> <!-- FontAwesome eye icon -->
         </button>
@@ -45,6 +68,7 @@ $_title = 'Login'
     <section>
         <button style="width: 100%;">Register</button>
     </section><br>
+    Already have an account &rarr;<a href="login.php" class="register"> Login</a>
 </form>
 
 <?php

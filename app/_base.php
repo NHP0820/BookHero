@@ -153,21 +153,3 @@ function is_exists($value, $table, $field) {
     $stm->execute([$value]);
     return $stm->fetchColumn() > 0;
 }
-
-// ============================================================================
-// Global Constants and Variables
-// ============================================================================
-
-$_genders = [
-    'F' => 'Female',
-    'M' => 'Male',
-];
-
-$_programs = [
-    'RDS' => 'Data Science',
-    'REI' => 'Enterprise Information Systems',
-    'RIS' => 'Information Security',
-    'RSD' => 'Software Systems Development',
-    'RST' => 'Interactive Software Technology',
-    'RSW' => 'Software Engineering',
-];

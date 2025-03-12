@@ -6,19 +6,22 @@ if (is_post()) {
     $username = post('username');
     $password = post('password');
 
-    $stmt = $_db->prepare('SELECT * FROM user WHERE username = ?');
-    $stmt->execute([$username]);
+    $stmt = $_db->prepare('SELECT * FROM user WHERE username = ? OR email = ?');
+    $stmt->execute([$username, $username]);
     $user = $stmt->fetch();
 
     // Validate username
     if ($username == '') {
         $_err['username'] = 'Required';
-    } elseif (!$user) {
-        $_err['username'] = 'Username not found';
+    } elseif (!$user || $email) {
+        $_err['username'] = 'Username or email not found';
     }
 
     // Validate password (Only check if username is valid)
-    if ($password == '') {
+    if ($_err['username'] == 'Username or email not found'){
+        $password = '';
+        $_err['password'] = '';
+    }elseif ($password == '') {
         $_err['password'] = 'Required';
     } elseif ($user && !password_verify($password, $user->password)) {
         $_err['password'] = 'Password Incorrect';
@@ -51,7 +54,7 @@ $_title = 'Login'
 
 <form method="post" class="form">
     <h1>Welcome to <?= $_title ?></h1>
-    <label for="username">User Name</label>
+    <label for="username">User Name / Email</label>
     <?= html_text('username') ?>
     <?= err('username') ?>
 
