@@ -2,29 +2,42 @@
 require "../_base.php";
 
 if (is_post()) {
-    $username = post('username');
-    $email = post('email');
-    $password = post('password');
-    $confirmPassword = post('confirmPassword');
+    $username = req('username');
+    $email = req('email');
+    $password = req('password');
+    $confirmPassword = req('confirmPassword');
 
-    if ($username = ''){
+    if ($username == ''){
         $_err['username'] = 'Required';
+    }else if (!is_unique($username, 'user', 'username')) {
+        $_err['username'] = 'This username exists';
     }
 
-    if ($email = ''){
+    if ($email == ''){
         $_err['email'] = 'Required';
+    }else if (!is_unique($email, 'user', 'email')) {
+        $_err['email'] = 'This email exists';
     }
 
-    if ($password = ''){
+    if ($password == ''){
         $_err['password'] = 'Required';
     }
 
-    if ($confirmPassword = ''){
+    if ($confirmPassword == ''){
         $_err['confirmPassword'] = 'Required';
+    }elseif ($confirmPassword !== $password){
+        $_err['confirmPassword'] = 'Password not match';
     }
 
     if (!$_err){
-
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $stm = $_db->prepare('INSERT INTO user
+                              (username, email, password)
+                              VALUES(?, ?, ?)');
+        $stm->execute([$username, $email, $hashedPassword]);
+        
+        temp('info', 'Record inserted');
+        redirect('login.php');
     }
 }
 
@@ -55,11 +68,12 @@ $_title = 'Login'
             <i class="fa fa-eye"></i> <!-- FontAwesome eye icon -->
         </button>
     </div>
+    <?= err('password') ?><br>
 
     <label for="confirmPassword">Confirm Password</label>
     <div class="password-container">
-        <?= html_password('password', 'id="password"') ?>
-        <button type="button" id="togglePassword">
+        <?= html_password('confirmPassword', 'id="confirmPassword"') ?>
+        <button type="button" id="togglePassword2">
             <i class="fa fa-eye"></i> <!-- FontAwesome eye icon -->
         </button>
     </div>
