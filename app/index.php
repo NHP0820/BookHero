@@ -15,7 +15,11 @@ include '_head.php';
   <div class="hero-text">
     <h1 style="font-size:50px">All Books You Need</h1>
     <p>A online book store</p>
+<<<<<<< HEAD
     <button>Shop now</button>
+=======
+    <button>Select some</button>
+>>>>>>> 6af03bbb338ed8cd708caa0d784e4b39a5dedf08
   </div>
 </div>
 
@@ -43,11 +47,27 @@ include '_head.php';
                         $imageData = base64_encode($productPhoto->product_photo);
                         $imageSrc = "data:image/jpeg;base64," . $imageData;
                         ?>
+<<<<<<< HEAD
                         <a target="_blank" href="<?= $imageSrc ?>">
                             <img src="<?= $imageSrc ?>" 
                                 alt="Product Image" 
                                 onerror="this.onerror=null; this.src='default-image.jpg';">
                         </a>
+=======
+                        <?php if (!isset($_SESSION['user'])): ?>
+                            <a target="/page/login.php" href="<?= $imageSrc ?>">
+                                <img src="<?= $imageSrc ?>" 
+                                    alt="Product Image" 
+                                    onerror="this.onerror=null; this.src='default-image.jpg';">
+                            </a>
+                        <?php else: ?>
+                            <a target="_blank" href="<?= $imageSrc ?>">
+                                <img src="<?= $imageSrc ?>" 
+                                    alt="Product Image" 
+                                    onerror="this.onerror=null; this.src='default-image.jpg';">
+                            </a>
+                        <?php endif; ?>
+>>>>>>> 6af03bbb338ed8cd708caa0d784e4b39a5dedf08
                     <?php endforeach; ?>
                 <?php endif; ?>
                 <div class="desc"><strong><?= $product->name ?></strong></div>

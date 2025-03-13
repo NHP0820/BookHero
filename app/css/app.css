@@ -170,7 +170,11 @@ label > *{
 }
 
 .hero-image:hover{
+<<<<<<< HEAD
     opacity: 80%;
+=======
+    opacity: 100%;
+>>>>>>> 6af03bbb338ed8cd708caa0d784e4b39a5dedf08
 }
 
 .hero-text {
@@ -396,4 +400,66 @@ form css
 
 .form .register:hover{
     color: #0288d1;
+<<<<<<< HEAD
+=======
+}
+
+.password-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.password-container button {
+    border: none;
+    cursor: pointer;
+    font-size: 14px; 
+    margin-top: auto;
+}
+
+.staffL{
+    float: right;
+}
+.staffL:hover{
+    text-decoration: none;
+}
+
+/*Search Bar*/
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;}
+
+nav a {
+    text-decoration: none;
+    margin-right: 15px;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+}
+
+.search-container input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-container button {
+    padding: 5px;
+    background: #ddd;
+    border: none;
+    cursor: pointer;
+}
+
+.search-container button:hover {
+    background: #ccc;
+>>>>>>> 6af03bbb338ed8cd708caa0d784e4b39a5dedf08
 }

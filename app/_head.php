@@ -18,15 +18,20 @@
         <h1><a href="/">BookHero</a></h1>
 
         <div class="dropdown">
+<<<<<<< HEAD
             <?php 
             if (!isset($_SESSION['user'])):
             ?>
+=======
+            <?php if (!isset($_SESSION['user'])):?>
+>>>>>>> 6af03bbb338ed8cd708caa0d784e4b39a5dedf08
                 <button class="dropbtn">GUEST</button>
                 <div class="dropdown-content">
                     <a href="/page/login.php">Login</a>
                 </div>
             <?php else: ?>
                 <button class="dropbtn"><?= htmlspecialchars($_SESSION['user']['username']) ?></button>
+<<<<<<< HEAD
                 <div class="dropdown-content"></div>
                     <a href="#">Profile</a>
                     <a href="#">Orders</a>
@@ -34,6 +39,16 @@
                     <a href="#">Logout</a>
                 </div>
             <?php endif;?>
+=======
+                <div class="dropdown-content">
+                    <a href="#">Profile</a>
+                    <a href="/page/orders.php">Orders</a>
+                    <a href="#">Whishlist</a>
+                    <a href="/page/logout.php">Logout</a>
+                </div>
+            <?php endif;?>
+
+>>>>>>> 6af03bbb338ed8cd708caa0d784e4b39a5dedf08
         </div>
     </header>
 
@@ -41,13 +56,19 @@
         <div class="nav-links">
             <a href="/">Home Page</a>
             <div class="dropdown"><a href="/">Category</a>
+<<<<<<< HEAD
                 <?php $categoryArr = $_db->query('SELECT * FROM category')->fetchAll(); ?>
                 <div class="dropdown-category">
+=======
+                <div class="dropdown-category">
+                    <?php $categoryArr = $_db->query('SELECT * FROM category')->fetchAll(); ?>
+>>>>>>> 6af03bbb338ed8cd708caa0d784e4b39a5dedf08
                     <?php foreach ($categoryArr as $category): ?>
                         <a href="/"><?= $category->name ?></a>
                     <?php endforeach; ?>
                 </div>
             </div>
+<<<<<<< HEAD
             <a href="/"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
         </div>
         <?php if (basename($_SERVER['PHP_SELF']) == 'index.php'): ?>
@@ -60,6 +81,27 @@
                 </div>
             </div>
         <?php endif; ?>
+=======
+            <?php if (!isset($_SESSION['user'])): ?>
+                <a href="/page/login.php">Cart</a>
+            <?php else: ?>
+                <a href="/">Cart</a>
+            <?php endif; ?>
+            
+        </div>
+        <div class="search-container">
+            <?php if (basename($_SERVER['PHP_SELF']) == 'index.php'): ?>
+                <div class="topnav">
+                    <div class="search-container">
+                        <form action="/action_page.php">
+                        <input type="text" placeholder="Search.." name="search">
+                        <button type="submit"><i class="fa fa-search"></i></button>
+                        </form>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+>>>>>>> 6af03bbb338ed8cd708caa0d784e4b39a5dedf08
     </nav>
 
     <main>
