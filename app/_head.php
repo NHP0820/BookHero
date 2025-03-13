@@ -48,7 +48,7 @@
                 </div>
             </div>
             <?php if (!isset($_SESSION['user'])): ?>
-                <a href="/page/login.php">Cart</a>
+                <a href="../new1.php">Cart</a>
             <?php else: ?>
                 <a href="/">Cart</a>
             <?php endif; ?>
