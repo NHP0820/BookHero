@@ -41,18 +41,29 @@ JOIN product p ON od.product_id = p.product_id
 WHERE o.user_id = ? AND o.status_id = 1;');
 $orderlist->execute([$user_id]);
 
-?>
-<?php 
+
 $countUnpay = $_db->prepare("SELECT COUNT(*) as total FROM `order` WHERE user_id = ? AND status_id = 1");
 $countUnpay->execute([$user_id]);
 $result = $countUnpay->fetch(PDO::FETCH_ASSOC);
 $totalUnpay = $result['total'];
+
+
+//use to cancel order
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
+    $cancelOrderId = $_POST['order_id'];
+    $cancelQuery = $_db->prepare("UPDATE `order` SET status_id = 5 WHERE order_id = ?");
+    $cancelQuery->execute([$cancelOrderId]);
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
+
 ?>
 
 
 <body>
     <nav class="order-nav">
-        <button onclick="showTable('pending-payment', this)" class="active">Pending Payment <span style="color: red;" >(<?= $totalUnpay ?>) </span> </button>
+        <button onclick="showTable('pending-payment', this)" class="active">Pending Payment <span style="color: red;">(<?= $totalUnpay ?>) </span> </button>
         <button onclick="showTable('pending-delivery', this)">Pending Delivery</button>
         <button onclick="showTable('done', this)">Done</button>
         <button onclick="showTable('cancel', this)">Cancelled</button>
@@ -76,13 +87,16 @@ $totalUnpay = $result['total'];
                     <span>Order No : <?= $orderId ?></span>
                     <span class="total-amount">Total: RM<?= $totalAmount ?></span>
                     <a href="payment.php?order_id=<?= $orderId ?>" class="pay-button">Pay</a>
+                    <form method="POST" style="display: inline;">
+                        <input type="hidden" name="order_id" value="<?= $orderId ?>">
+                        <button type="submit" name="cancel_order" class="cancel-button" style="margin-left: 10px; color: red; background: none; border: none; cursor: pointer;">Cancel</button>
+                    </form>
                 </summary>
                 <div class="order-products">
                     <?php
                     $address = $_db->prepare('SELECT * FROM address WHERE address_id = ?');
                     $address->execute([$orderItem->product_id]);
                     $address_name = $address->fetch(PDO::FETCH_ASSOC);
-
                     ?>
                     <?= "Delivery To " . $address_name['street'] . ' ' . $address_name['city'] . ' ' . $address_name['state'] . ' ' . $address_name['zip_code'] . ' ' . $address_name['country'] ?>
                     <?php foreach ($products as $orderItem): ?>
@@ -108,8 +122,6 @@ $totalUnpay = $result['total'];
                         </div>
                     <?php endforeach; ?>
                 </div>
-
-
 
                 <div class="order-total">Total: RM<?= $totalAmount ?></div>
             </details>
@@ -415,22 +427,19 @@ WHERE o.user_id = ? AND o.status_id = 4;');
 
 
 
-   
+
     <script>
         function showTable(tableId, button) {
-            document.querySelectorAll('.order-table').forEach(table => {
-                table.style.display = 'none';
-            });
-            document.getElementById(tableId).style.display = 'block';
+            $('.order-table').hide(); 
+            $('#' + tableId).show();
 
-            document.querySelectorAll('.order-nav button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            button.classList.add('active');
+            $('.order-nav button').removeClass('active'); 
+            $(button).addClass('active'); 
         }
 
-
-        showTable('pending-payment', document.querySelector('.order-nav button'));
+        $(document).ready(function() {
+            showTable('pending-payment', $('.order-nav button').first());
+        });
     </script>
 
 
