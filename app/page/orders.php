@@ -5,8 +5,8 @@ require '../_base.php';
 $arr = $_db->query('SELECT * FROM product')->fetchAll();
 
 
-$_SESSION['user_id'] = 1;
-$user_id = $_SESSION['user_id'];
+
+$user_id = $_SESSION['user']['id'];
 
 
 include '../_head.php';
