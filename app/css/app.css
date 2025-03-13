@@ -407,7 +407,15 @@ form css
 .password-container button {
     border: none;
     cursor: pointer;
-    font-size: 16px; 
+    font-size: 14px; 
+    margin-top: auto;
+}
+
+.staffL{
+    float: right;
+}
+.staffL:hover{
+    text-decoration: none;
 }
 
 /*Search Bar*/

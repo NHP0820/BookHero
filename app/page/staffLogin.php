@@ -15,8 +15,6 @@ if (is_post()) {
         $_err['username'] = 'Required';
     } elseif (!$user) {
         $_err['username'] = 'Username or email not found';
-    } elseif ($user->email_verified_at != 1){
-        $_err['username'] = 'Your email have not verify yet';
     }
 
     // Validate password (Only check if username is valid)
@@ -28,12 +26,19 @@ if (is_post()) {
         $_err['password'] = 'Password Incorrect';
     }
 
+    if (!isset($_err['username']) && !isset($_err['password'])) {
+        if ($user->role !== 'admin') {
+            $_err['username'] = 'You are not authorized to log in';
+            $password = '';
+        }
+    }
+
     // Output
     if (!$_err) {
         session_start();
         $_SESSION['user'] = [
             'username' => $user->username,
-            'id' => $user->user_id
+            'role' => $user->role
         ];
 
         temp('info', "$username, Welcome to BookHero");
@@ -46,8 +51,14 @@ if (is_post()) {
 }
 
 include "../_head.php";
-$_title = 'Login'
+$_title = 'Staff Login'
 ?>
+
+<style>
+    nav a{
+        display: none;
+    }
+</style>
 
 <form method="post" class="form">
     <h1><?= $_title ?></h1>
@@ -68,8 +79,7 @@ $_title = 'Login'
     <section>
         <button style="width: 100%;">Login</button>
     </section><br>
-    No account? &rarr;<a href="register.php" class="register"> Register now</a>
-    <a href="staffLogin.php" class="staffL">Staff login</a>
+    <a href="login.php" class="register">Member login</a>
 </form>
 
 <?php

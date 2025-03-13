@@ -43,11 +43,19 @@ include '_head.php';
                         $imageData = base64_encode($productPhoto->product_photo);
                         $imageSrc = "data:image/jpeg;base64," . $imageData;
                         ?>
-                        <a target="_blank" href="<?= $imageSrc ?>">
-                            <img src="<?= $imageSrc ?>" 
-                                alt="Product Image" 
-                                onerror="this.onerror=null; this.src='default-image.jpg';">
-                        </a>
+                        <?php if (!isset($_SESSION['user'])): ?>
+                            <a target="/page/login.php" href="<?= $imageSrc ?>">
+                                <img src="<?= $imageSrc ?>" 
+                                    alt="Product Image" 
+                                    onerror="this.onerror=null; this.src='default-image.jpg';">
+                            </a>
+                        <?php else: ?>
+                            <a target="_blank" href="<?= $imageSrc ?>">
+                                <img src="<?= $imageSrc ?>" 
+                                    alt="Product Image" 
+                                    onerror="this.onerror=null; this.src='default-image.jpg';">
+                            </a>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 <?php endif; ?>
                 <div class="desc"><strong><?= $product->name ?></strong></div>
