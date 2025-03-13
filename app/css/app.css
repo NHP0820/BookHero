@@ -170,11 +170,7 @@ label > *{
 }
 
 .hero-image:hover{
-<<<<<<< HEAD
-    opacity: 80%;
-=======
     opacity: 100%;
->>>>>>> 6af03bbb338ed8cd708caa0d784e4b39a5dedf08
 }
 
 .hero-text {
@@ -400,8 +396,6 @@ form css
 
 .form .register:hover{
     color: #0288d1;
-<<<<<<< HEAD
-=======
 }
 
 .password-container {
@@ -461,5 +455,4 @@ nav a {
 
 .search-container button:hover {
     background: #ccc;
->>>>>>> 6af03bbb338ed8cd708caa0d784e4b39a5dedf08
 }
