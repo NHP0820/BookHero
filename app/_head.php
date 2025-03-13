@@ -27,7 +27,7 @@
                 <button class="dropbtn"><?= htmlspecialchars($_SESSION['user']['username']) ?></button>
                 <div class="dropdown-content">
                     <a href="#">Profile</a>
-                    <a href="/page/order.php">Orders</a>
+                    <a href="/page/orders.php">Orders</a>
                     <a href="#">Whishlist</a>
                     <a href="/page/logout.php">Logout</a>
                 </div>
