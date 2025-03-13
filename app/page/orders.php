@@ -48,14 +48,7 @@ $result = $countUnpay->fetch(PDO::FETCH_ASSOC);
 $totalUnpay = $result['total'];
 
 
-//use to cancel order
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
-    $cancelOrderId = $_POST['order_id'];
-    $cancelQuery = $_db->prepare("UPDATE `order` SET status_id = 5 WHERE order_id = ?");
-    $cancelQuery->execute([$cancelOrderId]);
-    header("Location: " . $_SERVER['PHP_SELF']);
-    exit;
-}
+
 
 
 ?>
@@ -87,15 +80,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
                     <span>Order No : <?= $orderId ?></span>
                     <span class="total-amount">Total: RM<?= $totalAmount ?></span>
                     <a href="payment.php?order_id=<?= $orderId ?>" class="pay-button">Pay</a>
-                    <form method="POST" style="display: inline;">
-                        <input type="hidden" name="order_id" value="<?= $orderId ?>">
-                        <button type="submit" name="cancel_order" class="cancel-button" style="margin-left: 10px; color: red; background: none; border: none; cursor: pointer;">Cancel</button>
-                    </form>
+                    <button onclick="showCancelModal(<?= $orderId ?>)" class="cancel-button" style="margin-left: 10px; color: red; background: none; border: none; cursor: pointer;">Cancel</button>
                 </summary>
                 <div class="order-products">
                     <?php
                     $address = $_db->prepare('SELECT * FROM address WHERE address_id = ?');
-                    $address->execute([$orderItem->product_id]);
+                    $address->execute([$orderItem->address_id]);
                     $address_name = $address->fetch(PDO::FETCH_ASSOC);
                     ?>
                     <?= "Delivery To " . $address_name['street'] . ' ' . $address_name['city'] . ' ' . $address_name['state'] . ' ' . $address_name['zip_code'] . ' ' . $address_name['country'] ?>
@@ -188,7 +178,7 @@ WHERE o.user_id = ? AND o.status_id = 2;');
                 <div class="order-products">
                     <?php
                     $address = $_db->prepare('SELECT * FROM address WHERE address_id = ?');
-                    $address->execute([$orderItem->product_id]);
+                    $address->execute([$orderItem->address_id]);
                     $address_name = $address->fetch(PDO::FETCH_ASSOC);
 
                     ?>
@@ -284,7 +274,7 @@ WHERE o.user_id = ? AND o.status_id = 3;');
                 <div class="order-products">
                     <?php
                     $address = $_db->prepare('SELECT * FROM address WHERE address_id = ?');
-                    $address->execute([$orderItem->product_id]);
+                    $address->execute([$orderItem->address_id]);
                     $address_name = $address->fetch(PDO::FETCH_ASSOC);
 
                     ?>
@@ -336,6 +326,7 @@ WHERE o.user_id = ? AND o.status_id = 3;');
     o.total_amount, 
     o.status_id, 
     o.address_id, 
+    o.cancel_desc, 
     od.order_detail_id, 
     od.product_id, 
     p.name AS product_name,
@@ -361,7 +352,7 @@ WHERE o.user_id = ? AND o.status_id = 4;');
         <?php
         $groupedOrders = [];
         foreach ($orderlist as $orderItem) {
-            $groupedOrders[$orderItem->order_id][] = $orderItem;
+            $groupedOrders[$orderItem->order_id][] = $orderItem; 
         }
         ?>
 
@@ -374,13 +365,15 @@ WHERE o.user_id = ? AND o.status_id = 4;');
             <details class="order-dropdown">
                 <summary style="display: flex; justify-content: space-between;">
                     <span>Order No : <?= $orderId ?></span>
+                    <span style="padding-right: 30px;">Cancel Reason : <?= $orderItem->cancel_desc ?></span>
+
                     <span class="total-amount">Total: RM<?= $totalAmount ?></span>
 
                 </summary>
                 <div class="order-products">
                     <?php
                     $address = $_db->prepare('SELECT * FROM address WHERE address_id = ?');
-                    $address->execute([$orderItem->product_id]);
+                    $address->execute([$orderItem->address_id]);
                     $address_name = $address->fetch(PDO::FETCH_ASSOC);
 
                     ?>
@@ -421,7 +414,60 @@ WHERE o.user_id = ? AND o.status_id = 4;');
 
 
 
+    <div id="cancelModal" class="modal">
+        <p>Confirm to cancel this order？</p>
+        <input type="hidden" id="currentOrderId">
+        <label for="reason">Please select reason :</label><br><br>
+        <select id="reason">
+            <option value="I want to Change my address">I want to Change my address</option>
+            <option value="Misunderstanding">Misunderstanding</option>
+            <option value="I dont know">I dont know</option>
+            <option value="-">-</option>
+        </select>
+        <br><br>
+        <button id="confirmCancel" onclick="cancelOrder(<?= $orderId ?>)">Confirm Cancel</button>
+        <button id="closeModal" onclick="closeModal(<?= $orderId ?>)">Close</button>
+    </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        function showCancelModal(orderId) {
+            $('#currentOrderId').val(orderId);
+            $('#cancelModal').fadeIn(200);;
+        }
+
+
+        function closeModal() {
+            $('#cancelModal').fadeOut(200);
+        }
+
+
+        function cancelOrder(orderId) {
+
+            reasonn = $('#reason').val();
+            $.post('cancel_order.php', {
+                order_id: orderId,
+                reason: reasonn,
+            }, function(response) {
+                console.log(response);
+                if (response.success) {
+                    alert('order successfully cancelled...');
+                    location.reload();
+                } else {
+                    alert('Something wrong when canceling the order...');
+                }
+            }, 'json');
+        }
+
+        $('#confirmCancel').click(function() {
+            cancelOrder();
+        });
+
+        $('#closeModal').click(function() {
+            closeModal();
+        });
+    </script>
 
 
 
@@ -430,11 +476,11 @@ WHERE o.user_id = ? AND o.status_id = 4;');
 
     <script>
         function showTable(tableId, button) {
-            $('.order-table').hide(); 
+            $('.order-table').hide();
             $('#' + tableId).show();
 
-            $('.order-nav button').removeClass('active'); 
-            $(button).addClass('active'); 
+            $('.order-nav button').removeClass('active');
+            $(button).addClass('active');
         }
 
         $(document).ready(function() {
