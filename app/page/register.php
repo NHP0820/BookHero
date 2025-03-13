@@ -42,7 +42,7 @@ if (is_post()) {
 }
 
 include "../_head.php";
-$_title = 'Login'
+$_title = 'Member Register'
 ?>
 
 <style>

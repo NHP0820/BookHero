@@ -13,7 +13,7 @@ if (is_post()) {
     // Validate username
     if ($username == '') {
         $_err['username'] = 'Required';
-    } elseif (!$user || $email) {
+    } elseif (!$user) {
         $_err['username'] = 'Username or email not found';
     }
 
