@@ -152,8 +152,4 @@ function is_exists($value, $table, $field) {
     $stm = $_db->prepare("SELECT COUNT(*) FROM $table WHERE $field = ?");
     $stm->execute([$value]);
     return $stm->fetchColumn() > 0;
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 6af03bbb338ed8cd708caa0d784e4b39a5dedf08
