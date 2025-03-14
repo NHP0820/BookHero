@@ -352,7 +352,7 @@ WHERE o.user_id = ? AND o.status_id = 4;');
         <?php
         $groupedOrders = [];
         foreach ($orderlist as $orderItem) {
-            $groupedOrders[$orderItem->order_id][] = $orderItem; 
+            $groupedOrders[$orderItem->order_id][] = $orderItem;
         }
         ?>
 
@@ -415,7 +415,7 @@ WHERE o.user_id = ? AND o.status_id = 4;');
 
 
     <div id="cancelModal" class="modal">
-        <p>Confirm to cancel this order？</p>
+        <p>Confirm to cancel order ID = <span id="cancel_orderid"></span>？</p>
         <input type="hidden" id="currentOrderId">
         <label for="reason">Please select reason :</label><br><br>
         <select id="reason">
@@ -425,29 +425,36 @@ WHERE o.user_id = ? AND o.status_id = 4;');
             <option value="-">-</option>
         </select>
         <br><br>
-        <button id="confirmCancel" onclick="cancelOrder(<?= $orderId ?>)">Confirm Cancel</button>
-        <button id="closeModal" onclick="closeModal(<?= $orderId ?>)">Close</button>
+        <button id="confirmCancel" >Confirm Cancel</button>
+        <button id="closeModal" onclick="closeModal()">Close</button>
     </div>
+
+    <div id="overlaydiv" onclick="closeModal()"></div>
+
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
         function showCancelModal(orderId) {
             $('#currentOrderId').val(orderId);
-            $('#cancelModal').fadeIn(200);;
+            $('#cancel_orderid').text( $('#currentOrderId').val());
+            $('#cancelModal').fadeIn(200);
+            $('#overlaydiv').show();
         }
 
 
         function closeModal() {
             $('#cancelModal').fadeOut(200);
+            $('#overlaydiv').hide();
         }
 
 
         function cancelOrder(orderId) {
 
+            orderid = $('#currentOrderId').val();
             reasonn = $('#reason').val();
             $.post('cancel_order.php', {
-                order_id: orderId,
+                order_id: orderid,
                 reason: reasonn,
             }, function(response) {
                 console.log(response);
