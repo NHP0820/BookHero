@@ -1,5 +1,6 @@
 <?php 
 require "../_base.php";
+require_once __DIR__ . '/../lib/sendEmail.php';
 
 if (is_post()) {
     $username = req('username');
@@ -31,12 +32,42 @@ if (is_post()) {
 
     if (!$_err){
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $verificationToken = generateToken();
+        $tokenExpiry = date('Y-m-d H:i:s', strtotime('+1 hour'));
         $stm = $_db->prepare('INSERT INTO user
-                              (username, email, password)
-                              VALUES(?, ?, ?)');
-        $stm->execute([$username, $email, $hashedPassword]);
+                              (username, email, password, role, profile_image, email_verified_at, email_verification_token, email_expired_at)
+                              VALUES(?, ?, ?, ?, ?, ?, ?, ?)');
+        $result = $stm->execute([$username, $email, $hashedPassword, 'member', null, '0', $verificationToken, $tokenExpiry]);
         
-        temp('info', 'Record inserted');
+        if ($result) {
+            $verificationLink = "http://localhost:8000/page/verifyEmail.php?token=$verificationToken";
+
+            $subject = 'Verify Your Email, ' . $username . '!';
+            $body = '<h3>Hello ' . htmlspecialchars($username) . ',</h3>
+                     <p>Click the link below to verify your email before login:</p>
+                     <p><a href="' . $verificationLink . '">Verify Your Email</a></p>
+                     <p>This link expires in 1 hour.</p>
+                     <p>If the link above cannot user plese click the link below</p>
+                     <a href="' . $verificationLink . '">' . $verificationLink . '</a?>';
+    
+            // Include sendEmail function
+            require_once '../lib/sendEmail.php';
+    
+            if (function_exists('sendEmail')) {
+                $emailSent = sendEmail($email, $username, $subject, $body);
+                
+                if ($emailSent) {
+                    temp('info', 'A verification email has been sent to your registered email.');
+                } else {
+                    temp('error', 'Record inserted, but email could not be sent.');
+                }
+            } else {
+                temp('error', 'Email function not found.');
+            }
+        } else {
+            temp('error', 'Registration failed.');
+        }
+
         redirect('login.php');
     }
 }
@@ -53,6 +84,7 @@ $_title = 'Member Register'
 
 <form method="post" class="form">
     <h1><?= $_title ?></h1>
+    <p id="loadingText" style="display: none; color: blue;">Processing...</p>
     <label for="username">User Name</label>
     <?= html_text('username') ?>
     <?= err('username') ?>
@@ -80,7 +112,7 @@ $_title = 'Member Register'
     <?= err('confirmPassword') ?><br>
 
     <section>
-        <button style="width: 100%;">Register</button>
+        <button id="registerButton" style="width: 100%;">Register</button>
     </section><br>
     Already have an account &rarr;<a href="login.php" class="register"> Login</a>
 </form>

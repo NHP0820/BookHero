@@ -29,3 +29,16 @@ $(document).ready(function () {
         }
     });
 });
+
+//show page loading
+$(document).ready(function () {
+    $("#registerButton").click(function (event) {
+        event.preventDefault();
+        $("#loadingText").show();
+        $(this).prop("disabled", true);
+
+        setTimeout(() => {
+            $(".form").submit();
+        }, 1000);
+    });
+});

@@ -3,28 +3,28 @@ require "../_base.php";
 
 if (is_post()) {
     // Input
-    $username = post('username');
+    $email = post('email');
     $password = post('password');
 
-    $stmt = $_db->prepare('SELECT * FROM user WHERE username = ? OR email = ?');
-    $stmt->execute([$username, $username]);
-    $user = $stmt->fetch();
+    $stmt = $_db->prepare('SELECT * FROM user WHERE email = ?');
+    $stmt->execute([$email]);
+    $emails = $stmt->fetch();
 
     // Validate username
-    if ($username == '') {
-        $_err['username'] = 'Required';
-    } elseif (!$user) {
-        $_err['username'] = 'Username or email not found';
-    } elseif ($user->email_verified_at != 1){
-        $_err['username'] = 'Your email have not verify yet';
+    if ($email == '') {
+        $_err['email'] = 'Required';
+    } elseif (!$emails) {
+        $_err['email'] = 'Email not found';
+    } elseif ($emails->email_verified_at != 1){
+        $_err['email'] = 'Your email have not verify yet<a href="#" style="float: right;">Did not receive email?<a>';
     }
 
     // Validate password (Only check if username is valid)
-    if (isset($_err['username'])) {
+    if (isset($_err['email'])) {
         $_err['password'] = '';
     } elseif ($password == '') {
         $_err['password'] = 'Required';
-    } elseif (!password_verify($password, $user->password)) {
+    } elseif (!password_verify($password, $emails->password)) {
         $_err['password'] = 'Password Incorrect';
     }
 
@@ -32,13 +32,13 @@ if (is_post()) {
     if (!$_err) {
         session_start();
         $_SESSION['user'] = [
-            'username' => $user->username,
-            'id' => $user->user_id
+            'username' => $emails->username,
+            'id' => $emails->user_id
         ];
 
-        temp('info', "$username, Welcome to BookHero");
+        temp('info', "$emails->username, Welcome to BookHero");
 
-        $data = (object)compact('username');
+        $data = (object)compact('email');
         temp('data', $data);
 
         redirect('../index.php');
@@ -51,9 +51,9 @@ $_title = 'Login'
 
 <form method="post" class="form">
     <h1><?= $_title ?></h1>
-    <label for="username">User Name / Email</label>
-    <?= html_text('username') ?>
-    <?= err('username') ?>
+    <label for="email">Email</label>
+    <?= html_text('email') ?>
+    <?= err('email') ?>
 
     <label for="password">Password</label>
     <div class="password-container">
