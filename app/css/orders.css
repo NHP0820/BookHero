@@ -34,7 +34,7 @@
     display: flex;
     align-items: center;
     padding: 15px;
-    border-bottom: 1px solid #ddd;
+
 }
 .product-image {
     width: 80px;
@@ -44,6 +44,18 @@
 }
 .product-details {
     flex-grow: 1;
+    width: 250px; 
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-description {
+    display: inline-block;
+    max-width: 100px; /* 限制宽度，避免影响布局 */
+    white-space: nowrap; /* 不换行 */
+    overflow: hidden;
+    text-overflow: ellipsis; /* 超出显示省略号 */
 }
 .price {
     font-size: 16px;
@@ -205,4 +217,19 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     z-index: 999;
+}
+
+.product-detail-table td{
+    padding-left: 10px;
+}
+
+.product-desc {
+    width: 250px; /* 设定固定宽度，避免影响后面数量的对齐 */
+    white-space: nowrap; /* 如果产品名很长，防止换行 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.quantity-cell {
+    text-align: right; /* 让 "x 数量" 对齐 */
+    width: 50px; /* 适当调整宽度 */
 }

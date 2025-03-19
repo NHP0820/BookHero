@@ -94,26 +94,39 @@ $totalUnpay = $result['total'];
                         <div class="product-item">
                             <img src="data:image/jpeg;base64,<?= base64_encode($orderItem->product_photo) ?>" width="130px" alt="Product Image">
                             <div class="product-details">
-                                <h3><?= $orderItem->product_name ?></h3>
-                                <p><?= $orderItem->product_description ?></p>
-                                <p>x <?= $orderItem->quantity ?></p>
-                                <?php
-                                $productList = $_db->prepare('SELECT price FROM product WHERE product_id = ?');
-                                $productList->execute([$orderItem->product_id]);
-                                $product = $productList->fetch(PDO::FETCH_ASSOC);
-                                ?>
-                                <p class="price-container">
-                                    <span class="price">
-                                        <del><?php if ($product['price'] != $orderItem->price_at_purchase) echo "RM " . $product['price']; ?></del>
-                                        RM<?= $orderItem->price_at_purchase ?>
-                                    </span>
-                                </p>
+                                <table style="width: 100%;" class="product-detail-table">
+                                    <tr>
+                                        <td>
+                                            <h3><?= $orderItem->product_name ?></h3>
+                                        </td>
+                                        <td>
+                                            <p class="product-desc"><?= $orderItem->product_description ?></p>
+                                        </td>
+                                        <td>
+                                            <p class="quantity-cell">x <?= $orderItem->quantity ?></p>
+                                        </td>
+                                        <?php
+                                        $productList = $_db->prepare('SELECT price FROM product WHERE product_id = ?');
+                                        $productList->execute([$orderItem->product_id]);
+                                        $product = $productList->fetch(PDO::FETCH_ASSOC);
+                                        ?><td style="width: 30px;">
+                                            <p class="price-container">
+                                                <span class="price">
+                                                    <del><?php if ($product['price'] != $orderItem->price_at_purchase) echo "RM " . $product['price']; ?></del>
+                                                    RM<?= $orderItem->price_at_purchase ?>
+                                                </span>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
+
+
                         </div>
                     <?php endforeach; ?>
                 </div>
 
-                <div class="order-total">Total: RM<?= $totalAmount ?></div>
+                <div class="order-total" style="border-top: 1px solid #ddd;">Total: RM<?= $totalAmount ?></div>
             </details>
         <?php endforeach; ?>
     </div>
@@ -185,23 +198,33 @@ WHERE o.user_id = ? AND o.status_id = 2;');
                     <?= "Delivery To " . $address_name['street'] . ' ' . $address_name['city'] . ' ' . $address_name['state'] . ' ' . $address_name['zip_code'] . ' ' . $address_name['country'] ?>
                     <?php foreach ($products as $orderItem): ?>
 
-                        <div class="product-item">
+                        <div class="product-item" >
                             <img src="data:image/jpeg;base64,<?= base64_encode($orderItem->product_photo) ?>" width="130px" alt="Product Image">
-                            <div class="product-details">
-                                <h3><?= $orderItem->product_name ?></h3>
-                                <p><?= $orderItem->product_description ?></p>
-                                <p>x <?= $orderItem->quantity ?></p>
-                                <?php
-                                $productList = $_db->prepare('SELECT price FROM product WHERE product_id = ?');
-                                $productList->execute([$orderItem->product_id]);
-                                $product = $productList->fetch(PDO::FETCH_ASSOC);
-                                ?>
-                                <p class="price-container">
-                                    <span class="price">
-                                        <del><?php if ($product['price'] != $orderItem->price_at_purchase) echo "RM " . $product['price']; ?></del>
-                                        RM<?= $orderItem->price_at_purchase ?>
-                                    </span>
-                                </p>
+                            <div class="product-details"> <table style="width: 100%;" class="product-detail-table">
+                                    <tr>
+                                        <td>
+                                            <h3><?= $orderItem->product_name ?></h3>
+                                        </td>
+                                        <td >
+                                            <p class="product-desc"><?= $orderItem->product_description ?></p>
+                                        </td>
+                                        <td>
+                                            <p class="quantity-cell">x <?= $orderItem->quantity ?></p>
+                                        </td>
+                                        <?php
+                                        $productList = $_db->prepare('SELECT price FROM product WHERE product_id = ?');
+                                        $productList->execute([$orderItem->product_id]);
+                                        $product = $productList->fetch(PDO::FETCH_ASSOC);
+                                        ?><td style="width: 30px;">
+                                            <p class="price-container" style="width: 200px;">
+                                                <span class="price">
+                                                    <del><?php if ($product['price'] != $orderItem->price_at_purchase) echo "RM " . $product['price']; ?></del>
+                                                    RM<?= $orderItem->price_at_purchase ?>
+                                                </span>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -209,7 +232,7 @@ WHERE o.user_id = ? AND o.status_id = 2;');
 
 
 
-                <div class="order-total">Total: RM<?= $totalAmount ?></div>
+                <div class="order-total" style="border-top: 1px solid #ddd;">Total: RM<?= $totalAmount ?></div>
             </details>
         <?php endforeach; ?>
     </div>
@@ -283,21 +306,31 @@ WHERE o.user_id = ? AND o.status_id = 3;');
 
                         <div class="product-item">
                             <img src="data:image/jpeg;base64,<?= base64_encode($orderItem->product_photo) ?>" width="130px" alt="Product Image">
-                            <div class="product-details">
-                                <h3><?= $orderItem->product_name ?></h3>
-                                <p><?= $orderItem->product_description ?></p>
-                                <p>x <?= $orderItem->quantity ?></p>
-                                <?php
-                                $productList = $_db->prepare('SELECT price FROM product WHERE product_id = ?');
-                                $productList->execute([$orderItem->product_id]);
-                                $product = $productList->fetch(PDO::FETCH_ASSOC);
-                                ?>
-                                <p class="price-container">
-                                    <span class="price">
-                                        <del><?php if ($product['price'] != $orderItem->price_at_purchase) echo "RM " . $product['price']; ?></del>
-                                        RM<?= $orderItem->price_at_purchase ?>
-                                    </span>
-                                </p>
+                            <div class="product-details"> <table style="width: 100%;" class="product-detail-table">
+                                    <tr>
+                                        <td>
+                                            <h3><?= $orderItem->product_name ?></h3>
+                                        </td>
+                                        <td>
+                                            <p class="product-desc"><?= $orderItem->product_description ?></p>
+                                        </td>
+                                        <td>
+                                            <p class="quantity-cell">x <?= $orderItem->quantity ?></p>
+                                        </td>
+                                        <?php
+                                        $productList = $_db->prepare('SELECT price FROM product WHERE product_id = ?');
+                                        $productList->execute([$orderItem->product_id]);
+                                        $product = $productList->fetch(PDO::FETCH_ASSOC);
+                                        ?><td style="width: 30px;">
+                                            <p class="price-container">
+                                                <span class="price">
+                                                    <del><?php if ($product['price'] != $orderItem->price_at_purchase) echo "RM " . $product['price']; ?></del>
+                                                    RM<?= $orderItem->price_at_purchase ?>
+                                                </span>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -305,7 +338,7 @@ WHERE o.user_id = ? AND o.status_id = 3;');
 
 
 
-                <div class="order-total">Total: RM<?= $totalAmount ?></div>
+                <div class="order-total" style="border-top: 1px solid #ddd;">Total: RM<?= $totalAmount ?></div>
             </details>
         <?php endforeach; ?>
     </div>
@@ -382,21 +415,31 @@ WHERE o.user_id = ? AND o.status_id = 4;');
 
                         <div class="product-item">
                             <img src="data:image/jpeg;base64,<?= base64_encode($orderItem->product_photo) ?>" width="130px" alt="Product Image">
-                            <div class="product-details">
-                                <h3><?= $orderItem->product_name ?></h3>
-                                <p><?= $orderItem->product_description ?></p>
-                                <p>x <?= $orderItem->quantity ?></p>
-                                <?php
-                                $productList = $_db->prepare('SELECT price FROM product WHERE product_id = ?');
-                                $productList->execute([$orderItem->product_id]);
-                                $product = $productList->fetch(PDO::FETCH_ASSOC);
-                                ?>
-                                <p class="price-container">
-                                    <span class="price">
-                                        <del><?php if ($product['price'] != $orderItem->price_at_purchase) echo "RM " . $product['price']; ?></del>
-                                        RM<?= $orderItem->price_at_purchase ?>
-                                    </span>
-                                </p>
+                            <div class="product-details"> <table style="width: 100%;" class="product-detail-table">
+                                    <tr>
+                                        <td>
+                                            <h3><?= $orderItem->product_name ?></h3>
+                                        </td>
+                                        <td>
+                                            <p class="product-desc"><?= $orderItem->product_description ?></p>
+                                        </td>
+                                        <td>
+                                            <p class="quantity-cell">x <?= $orderItem->quantity ?></p>
+                                        </td>
+                                        <?php
+                                        $productList = $_db->prepare('SELECT price FROM product WHERE product_id = ?');
+                                        $productList->execute([$orderItem->product_id]);
+                                        $product = $productList->fetch(PDO::FETCH_ASSOC);
+                                        ?><td style="width: 30px;">
+                                            <p class="price-container">
+                                                <span class="price">
+                                                    <del><?php if ($product['price'] != $orderItem->price_at_purchase) echo "RM " . $product['price']; ?></del>
+                                                    RM<?= $orderItem->price_at_purchase ?>
+                                                </span>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -404,7 +447,7 @@ WHERE o.user_id = ? AND o.status_id = 4;');
 
 
 
-                <div class="order-total">Total: RM<?= $totalAmount ?></div>
+                <div class="order-total" style="border-top: 1px solid #ddd;">Total: RM<?= $totalAmount ?></div>
             </details>
         <?php endforeach; ?>
     </div>
@@ -425,7 +468,7 @@ WHERE o.user_id = ? AND o.status_id = 4;');
             <option value="-">-</option>
         </select>
         <br><br>
-        <button id="confirmCancel" >Confirm Cancel</button>
+        <button id="confirmCancel">Confirm Cancel</button>
         <button id="closeModal" onclick="closeModal()">Close</button>
     </div>
 
@@ -437,7 +480,7 @@ WHERE o.user_id = ? AND o.status_id = 4;');
     <script>
         function showCancelModal(orderId) {
             $('#currentOrderId').val(orderId);
-            $('#cancel_orderid').text( $('#currentOrderId').val());
+            $('#cancel_orderid').text($('#currentOrderId').val());
             $('#cancelModal').fadeIn(200);
             $('#overlaydiv').show();
         }
