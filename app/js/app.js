@@ -42,3 +42,29 @@ $(document).ready(function () {
         }, 1000);
     });
 });
+
+//resend verification email
+$(document).ready(function() {
+    $("#resendVerification").on("click", function(event) {
+        event.preventDefault();
+        var email = $(this).data("email");
+
+        $.ajax({
+            url: "resendVerification.php",
+            type: "POST",
+            data: { email: email },
+            dataType: "json",
+            beforeSend: function() {
+                $("#resendVerification").text("Sending...").css("color", "black");
+            },
+            success: function(response) {
+                if (response.status === "success") {
+                    window.location.href = 'login.php';
+                } else {
+                    window.location.href = 'login.php';
+                }
+            }
+        });
+    })
+});
+

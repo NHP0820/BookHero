@@ -16,7 +16,7 @@ if (is_post()) {
     } elseif (!$emails) {
         $_err['email'] = 'Email not found';
     } elseif ($emails->email_verified_at != 1){
-        $_err['email'] = 'Your email have not verify yet<a href="#" style="float: right;">Did not receive email?<a>';
+        $_err['email'] = 'Your email has not been verified. <a href="#" id="resendVerification" data-email="'.htmlspecialchars($email).'" style="float: right;">Did not receive email?</a>';
     }
 
     // Validate password (Only check if username is valid)
