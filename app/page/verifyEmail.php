@@ -19,7 +19,7 @@ if (isset($_GET['token'])) {
         temp ('error', 'Invalid or expired verification link.');
     }
 } else {
-    temp ('errpr', 'No verification token provided.');
+    temp ('error', 'No verification token provided.');
     
 }
 

@@ -13,7 +13,6 @@ if (is_post()) {
     // Validate username
     if ($email == '') {
         $_err['email'] = 'Required';
-        echo json_encode(["status" => "error", "message" => $_err['email']]);
     } elseif (!$emails) {
         $_err['email'] = 'Email not found';
     } elseif ($emails->email_verified_at != 1){
@@ -65,13 +64,18 @@ $_title = 'Login'
     </div>
     <?= err('password') ?>
     
-    <a href="#" id="forgetPassword" class="register" style="float: right; padding: 5px;">Forget Password</a><br>
+    <label for="confirmPassword">Confirm Password</label>
+    <div class="password-container">
+        <?= html_password('confirmPassword', 'id="confirmPassword"') ?>
+        <button type="button" id="togglePassword2">
+            <i class="fa fa-eye"></i> <!-- FontAwesome eye icon -->
+        </button>
+    </div>
+    <?= err('confirmPassword') ?><br>
 
     <section>
-        <button style="width: 100%;">Login</button>
+        <button style="width: 100%;">Reset Password</button>
     </section><br>
-    No account? &rarr;<a href="register.php" class="register"> Register now</a>
-    <a href="staffLogin.php" class="staffL">Staff login</a>
 </form>
 
 <?php
