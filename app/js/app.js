@@ -68,3 +68,34 @@ $(document).ready(function() {
     })
 });
 
+$(document).ready(function() {
+    $("#forgetPassword").on("click", function(event) {
+        event.preventDefault();
+
+        var email = $("#email").val().trim();
+
+        if (email === '') {
+            $(".err").remove();
+            $("#email").after("<span class='err' style='color:red;'>Required</span>");
+            return;
+        }
+        $.ajax({
+            url: "forgetPassword.php",
+            type: "POST",
+            data: { email: email },
+            dataType: "json",
+            beforeSend: function() {
+                $("#forgetPassword").text("Sending...").css("color", "black");
+            },
+            success: function(response) {
+                if (response.status === "success") {
+                    window.location.href = 'login.php';
+                } else {
+                    window.location.href = 'login.php';
+                }
+            },
+        });
+    });
+});
+
+
