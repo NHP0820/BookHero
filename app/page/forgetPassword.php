@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $updateResult = $updateStm->execute([$newToken, $tokenExpiry, $email]);
 
     if ($updateResult) {
-        $verificationLink = "http://localhost:8000/page/forgetPasswordForm.php?token=$newToken";
+        $verificationLink = "http://localhost:8000/page/forgetPasswordForm.php?token=$newToken&email=" . urlencode($email);
         $subject = "Hello, " . htmlspecialchars($user->username) . "!";
         $body = '<h3>Hello ' . htmlspecialchars($user->username) . ',</h3>
                  <p>Click the link below to reset your password:</p>
