@@ -1,74 +1,77 @@
 <?php 
 require "../_base.php";
 
+$email = '';
+$token = $_GET['token'] ?? ''; // Get token from URL
+
+if (!empty($token)) {
+    // Query the database to find the email linked to this token
+    $stmt = $_db->prepare("SELECT email FROM user WHERE email_verification_token = ?");
+    $stmt->execute([$token]);
+    $user = $stmt->fetch(PDO::FETCH_OBJ);
+
+    if ($user) {
+        $email = $user->email;
+    } else {
+        die("Invalid or expired token."); // Stop execution if token is invalid
+    }
+}
+
 if (is_post()) {
     // Input
-    $email = post('email');
     $password = post('password');
+    $confirmPassword = post('confirmPassword');
 
-    $stmt = $_db->prepare('SELECT * FROM user WHERE email = ?');
-    $stmt->execute([$email]);
-    $emails = $stmt->fetch();
-
-    // Validate username
-    if ($email == '') {
-        $_err['email'] = 'Required';
-    } elseif (!$emails) {
-        $_err['email'] = 'Email not found';
-    } elseif ($emails->email_verified_at != 1){
-        $_err['email'] = 'Your email has not been verified. <a href="#" id="resendVerification" data-email="'.htmlspecialchars($email).'" style="float: right;">Did not receive email?</a>';
+    // Validation
+    if (empty($password)) {
+        $_err['password'] = 'Password is required';
+    } elseif (strlen($password) < 6) {
+        $_err['password'] = 'Password must be at least 6 characters';
     }
 
-    // Validate password (Only check if username is valid)
-    if (isset($_err['email'])) {
-        $_err['password'] = '';
-    } elseif ($password == '') {
-        $_err['password'] = 'Required';
-    } elseif (!password_verify($password, $emails->password)) {
-        $_err['password'] = 'Password Incorrect';
+    if ($confirmPassword !== $password) {
+        $_err['confirmPassword'] = 'Passwords do not match';
     }
 
-    // Output
-    if (!$_err) {
-        session_start();
-        $_SESSION['user'] = [
-            'username' => $emails->username,
-            'id' => $emails->user_id
-        ];
+    // Output: If no errors, update the password
+    if (empty($_err)) {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        temp('info', "$emails->username, Welcome to BookHero");
+        $updateStmt = $_db->prepare("UPDATE user SET password = ?, email_verification_token = NULL WHERE email = ?");
+        $updateStmt->execute([$hashedPassword, $email]);
 
-        $data = (object)compact('email');
-        temp('data', $data);
+        temp('info', "Password has been reset. You can now log in.");
 
-        redirect('../index.php');
+        redirect('../index.php'); // Redirect to login page after successful reset
     }
 }
 
 include "../_head.php";
-$_title = 'Login'
+$_title = 'Reset Password';
 ?>
 
 <form method="post" class="form">
     <h1><?= $_title ?></h1>
+    <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+
     <label for="email">Email</label>
-    <?= html_text('email') ?>
+    <input type="text" name="email" id="email" value="<?= htmlspecialchars($email) ?>" readonly>
     <?= err('email') ?>
 
-    <label for="password">Password</label>
+    <label for="password">New Password</label>
     <div class="password-container">
-        <?= html_password('password', 'id="password"') ?>
+        <?= html_password('password', 'id="password" required') ?>
         <button type="button" id="togglePassword">
-            <i class="fa fa-eye"></i> <!-- FontAwesome eye icon -->
+            <i class="fa fa-eye"></i>
         </button>
     </div>
     <?= err('password') ?>
-    
+
     <label for="confirmPassword">Confirm Password</label>
     <div class="password-container">
-        <?= html_password('confirmPassword', 'id="confirmPassword"') ?>
+        <?= html_password('confirmPassword', 'id="confirmPassword" required') ?>
         <button type="button" id="togglePassword2">
-            <i class="fa fa-eye"></i> <!-- FontAwesome eye icon -->
+            <i class="fa fa-eye"></i>
         </button>
     </div>
     <?= err('confirmPassword') ?><br>
@@ -78,5 +81,18 @@ $_title = 'Login'
     </section><br>
 </form>
 
+<script>
+document.getElementById("togglePassword").addEventListener("click", function() {
+    let password = document.getElementById("password");
+    password.type = password.type === "password" ? "text" : "password";
+});
+
+document.getElementById("togglePassword2").addEventListener("click", function() {
+    let confirmPassword = document.getElementById("confirmPassword");
+    confirmPassword.type = confirmPassword.type === "password" ? "text" : "password";
+});
+</script>
+
 <?php
 include "../_foot.php";
+?>

@@ -22,6 +22,8 @@ if (is_post()) {
 
     if ($password == ''){
         $_err['password'] = 'Required';
+    } elseif (strlen($password) < 6) {
+        $_err['password'] = 'Password must be at least 6 characters';
     }
 
     if ($confirmPassword == ''){
