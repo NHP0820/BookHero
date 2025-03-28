@@ -48,7 +48,7 @@ include '../../_staffHead.php';
             <td><?= $p->stock_quantity ?></td>
             <td>
                 <?php if ($p->product_photo): ?>
-                    <img src="../../images/<?= $p->product_photo ?>" class="popup">
+                    <img src="../../images/<?= $p->product_photo ?>" >
                 <?php endif; ?>
             </td>
             <td>
