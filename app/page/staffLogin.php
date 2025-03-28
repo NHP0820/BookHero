@@ -3,18 +3,21 @@ require "../_base.php";
 
 if (is_post()) {
     // Input
-    $username = post('username');
+    $email = post('email');
     $password = post('password');
 
-    $stmt = $_db->prepare('SELECT * FROM user WHERE username = ? OR email = ?');
-    $stmt->execute([$username, $username]);
-    $user = $stmt->fetch();
+    $stmt = $_db->prepare('SELECT * FROM user WHERE email = ?');
+    $stmt->execute([$email]);
+    $emails = $stmt->fetch(PDO::FETCH_OBJ);
 
     // Validate username
-    if ($username == '') {
-        $_err['username'] = 'Required';
-    } elseif (!$user) {
-        $_err['username'] = 'Username or email not found';
+    if ($email == '') {
+        $_err['email'] = 'Required';
+        echo json_encode(["status" => "error", "message" => $_err['email']]);
+    } elseif (!$emails) {
+        $_err['email'] = 'Email not found';
+    } elseif ($emails->email_verified_at != 1){
+        $_err['email'] = 'Your email has not been verified. <a href="#" id="resendVerification" data-email="'.htmlspecialchars($email).'" style="float: right;">Did not receive email?</a>';
     }
 
     // Validate password (Only check if username is valid)
@@ -22,12 +25,12 @@ if (is_post()) {
         $_err['password'] = '';
     } elseif ($password == '') {
         $_err['password'] = 'Required';
-    } elseif (!password_verify($password, $user->password)) {
+    } elseif (!password_verify($password, $emails->password)) {
         $_err['password'] = 'Password Incorrect';
     }
 
     if (!isset($_err['username']) && !isset($_err['password'])) {
-        if ($user->role !== 'admin') {
+        if ($emails->role !== 'admin') {
             $_err['username'] = 'You are not authorized to log in';
             $password = '';
         }
@@ -37,16 +40,16 @@ if (is_post()) {
     if (!$_err) {
         session_start();
         $_SESSION['user'] = [
-            'username' => $user->username,
-            'role' => $user->role
+            'username' => $emails->username,
+            'role' => $emails->role
         ];
 
-        temp('info', "$username, Welcome to BookHero");
+        temp('info', "$emails->username, Welcome to BookHero");
 
         $data = (object)compact('username');
         temp('data', $data);
 
-        redirect('../index.php');
+        redirect('../staffIndex.php');
     }
 }
 
@@ -62,9 +65,9 @@ $_title = 'Staff Login'
 
 <form method="post" class="form">
     <h1><?= $_title ?></h1>
-    <label for="username">User Name / Email</label>
-    <?= html_text('username') ?>
-    <?= err('username') ?>
+    <label for="email">Email</label>
+    <?= html_text('email') ?>
+    <?= err('email') ?>
 
     <label for="password">Password</label>
     <div class="password-container">

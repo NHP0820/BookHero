@@ -47,10 +47,10 @@
                     <?php endforeach; ?>
                 </div>
             </div>
-            <?php if (!isset($_SESSION['user'])): ?>
-                <a href="../new1.php">Cart</a>
+            <?php if (isset($_SESSION['user'])): ?>
+                <a href="/page/cart/shoppingCart.php">Cart</a>
             <?php else: ?>
-                <a href="/">Cart</a>
+                <a href="/page/login.php">Cart</a>
             <?php endif; ?>
             
         </div>

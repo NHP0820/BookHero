@@ -61,6 +61,35 @@ function temp($key, $value = null) {
     }
 }
 
+// Obtain uploaded file --> cast to object
+function get_file($key) {
+    $f = $_FILES[$key] ?? null;
+    
+    if ($f && $f['error'] == 0) {
+        return (object)$f;
+    }
+
+    return null;
+}
+
+// Crop, resize and save photo
+function save_photo($f, $folder, $width = 200, $height = 200) {
+    $photo = uniqid() . '.jpg';
+    
+    require_once 'lib/SimpleImage.php';
+    $img = new SimpleImage();
+    $img->fromFile($f->tmp_name)
+        ->thumbnail($width, $height)
+        ->toFile("$folder/$photo", 'image/jpeg');
+
+    return $photo;
+}
+
+// Is money?
+function is_money($value) {
+    return preg_match('/^\-?\d+(\.\d{1,2})?$/', $value);
+}
+
 // ============================================================================
 // HTML Helpers
 // ============================================================================
@@ -68,6 +97,11 @@ function temp($key, $value = null) {
 // Encode HTML special characters
 function encode($value) {
     return htmlentities($value);
+}
+
+function html_hidden($key, $attr = '') {
+    $value = encode($GLOBALS[$key] ?? '');
+    echo "<input type='hidden' id='$key' name='$key' value='$value' $attr>";
 }
 
 // Generate <input type='password'>
@@ -80,6 +114,13 @@ function html_password($key, $attr = '') {
 function html_text($key, $attr = '') {
     $value = encode($GLOBALS[$key] ?? '');
     echo "<input type='text' id='$key' name='$key' value='$value' $attr>";
+}
+
+// Generate <input type='number'>
+function html_number($key, $min = '', $max = '', $step = '', $attr = '') {
+    $value = encode($GLOBALS[$key] ?? '');
+    echo "<input type='number' id='$key' name='$key' value='$value'
+                 min='$min' max='$max' step='$step' $attr>";
 }
 
 // Generate <input type='radio'> list
@@ -108,6 +149,11 @@ function html_select($key, $items, $default = '- Select One -', $attr = '') {
         echo "<option value='$id' $state>$text</option>";
     }
     echo '</select>';
+}
+
+// Generate <input type='file'>
+function html_file($key, $accept = '', $attr = '') {
+    echo "<input type='file' id='$key' name='$key' accept='$accept' $attr>";
 }
 
 // ============================================================================
@@ -153,3 +199,28 @@ function is_exists($value, $table, $field) {
     $stm->execute([$value]);
     return $stm->fetchColumn() > 0;
 }
+
+function get_cart() {
+    return $_SESSION['cart'] ?? [];
+}
+
+function set_cart($cart = []) {
+    $SESSION['cart'] = $cart;
+}
+
+function update_cart($id, $unit) {
+    $cart = get_cart();
+
+    if ($unit >= 1 && $unit <=10 && is_exists($id, 'product', 'id')){
+        $cart[$id] = $unit;
+        ksort($cart);
+    }
+
+    else {
+        unset($cart[$id]);
+    }
+
+    set_cart($cart);
+}
+
+$_units = array_combine(range(1, 10), range (1, 10));

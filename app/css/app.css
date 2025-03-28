@@ -149,8 +149,6 @@ label > *{
     vertical-align: text-top;
 }
 
-
-
 .err{
     color: red;
 }
@@ -346,7 +344,9 @@ form css
 
 .form input[type="text"],
 .form select, 
-.form input[type="password"]{
+.form input[type="password"],
+.form input[type="number"],
+.form input[type="file"]{
     width: 100%;
     padding: 8px;
     margin-top: 5px;

@@ -42,6 +42,8 @@ if (is_post()) {
         $result = $stm->execute([$username, $email, $hashedPassword, 'member', null, '0', $verificationToken, $tokenExpiry]);
         
         if ($result) {
+            $stm = $_db->prepare('INSERT INTO cart (user_id) VALUES(?)');
+            $stm->execute([$_db->lastInsertId()]);
             $verificationLink = "http://localhost:8000/page/verifyEmail.php?token=$verificationToken";
 
             $subject = 'Verify Your Email, ' . $username . '!';
