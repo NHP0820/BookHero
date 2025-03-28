@@ -60,7 +60,7 @@ $_title = 'Reset Password';
 
     <label for="password">New Password</label>
     <div class="password-container">
-        <?= html_password('password', 'id="password" required') ?>
+        <?= html_password('password', 'id="password"') ?>
         <button type="button" id="togglePassword">
             <i class="fa fa-eye"></i>
         </button>
@@ -69,7 +69,7 @@ $_title = 'Reset Password';
 
     <label for="confirmPassword">Confirm Password</label>
     <div class="password-container">
-        <?= html_password('confirmPassword', 'id="confirmPassword" required') ?>
+        <?= html_password('confirmPassword', 'id="confirmPassword"') ?>
         <button type="button" id="togglePassword2">
             <i class="fa fa-eye"></i>
         </button>
