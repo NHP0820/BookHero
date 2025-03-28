@@ -32,26 +32,23 @@ include '_head.php';
                 $stmt = $_db->prepare('SELECT * FROM product_photo WHERE product_id = ? LIMIT 1');
                 $stmt->execute([$product->product_id]);
                 $photos = $stmt->fetchAll();
+              
                 ?>
 
                 <?php if (empty($photos)): ?>
                     <p>No image available</p>
                 <?php else: ?>
                     <?php foreach ($photos as $productPhoto): ?>
-                        <?php
-                        // Convert BLOB to base64
-                        $imageData = base64_encode($productPhoto->product_photo);
-                        $imageSrc = "data:image/jpeg;base64," . $imageData;
-                        ?>
+                        
                         <?php if (!isset($_SESSION['user'])): ?>
-                            <a target="/page/login.php" href="<?= $imageSrc ?>">
-                                <img src="<?= $imageSrc ?>" 
+                            <a target="/page/login.php" href="/images/<?= $productPhoto->product_photo ?>">
+                                <img src="/images/<?= $productPhoto->product_photo ?>" 
                                     alt="Product Image" 
                                     onerror="this.onerror=null; this.src='default-image.jpg';">
                             </a>
                         <?php else: ?>
-                            <a target="_blank" href="<?= $imageSrc ?>">
-                                <img src="<?= $imageSrc ?>" 
+                            <a target="_blank" href="/images/<?= $$productPhoto->product_photo ?>">
+                                <img src="/images/<?= $productPhoto->product_photo ?>" 
                                     alt="Product Image" 
                                     onerror="this.onerror=null; this.src='default-image.jpg';">
                             </a>
