@@ -47,7 +47,7 @@ include '_head.php';
                                     onerror="this.onerror=null; this.src='default-image.jpg';">
                             </a>
                         <?php else: ?>
-                            <a target="_blank" href="/images/<?= $$productPhoto->product_photo ?>">
+                            <a target="_blank" href="/images/<?= $productPhoto->product_photo ?>">
                                 <img src="/images/<?= $productPhoto->product_photo ?>" 
                                     alt="Product Image" 
                                     onerror="this.onerror=null; this.src='default-image.jpg';">
