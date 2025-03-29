@@ -1,15 +1,15 @@
 <?php
-require '../_base.php';
+require '_base.php';
 //-----------------------------------------------------------------------------
 
 $arr = $_db->query('SELECT * FROM product')->fetchAll();
 
 
 
-$user_id = $_SESSION['user']['id'];
+$user_id = $_SESSION['user']['user_id'];
 
 
-include '../_head.php';
+include '_head.php';
 ?>
 <link rel="stylesheet" href="/css/orders.css">
 </head>
@@ -37,9 +37,8 @@ $orderlist = $_db->prepare('SELECT
     od.voucher_id
 FROM `order` o
 JOIN order_detail od ON o.order_id = od.order_id
-JOIN product p ON od.product_id = p.product_id
-WHERE o.user_id = ? AND o.status_id = 1;');
-$orderlist->execute([$user_id]);
+JOIN product p ON od.product_id = p.product_id');
+$orderlist->execute();
 
 
 $countUnpay = $_db->prepare("SELECT COUNT(*) as total FROM `order` WHERE user_id = ? AND status_id = 1");
@@ -55,6 +54,13 @@ $totalUnpay = $result['total'];
 
 
 <body>
+
+<div style="text-align: center;">
+    <h1>
+        Admin Order List 
+    </h1>
+</div>
+
     <nav class="order-nav">
         <button onclick="showTable('pending-payment', this)" class="active">Pending Payment <span style="color: red;">(<?= $totalUnpay ?>) </span> </button>
         <button onclick="showTable('pending-delivery', this)">Pending Delivery</button>
@@ -92,7 +98,7 @@ $totalUnpay = $result['total'];
                     <?php foreach ($products as $orderItem): ?>
 
                         <div class="product-item">
-                            <img src="../images/<?= $orderItem->product_photo ?>" width="130px" alt="Product Image">
+                            <img src="/images/<?= $orderItem->product_photo?>" width="130px" alt="Product Image">
                             <div class="product-details">
                                 <table style="width: 100%;" class="product-detail-table">
                                     <tr>
@@ -540,4 +546,4 @@ WHERE o.user_id = ? AND o.status_id = 4;');
 
 
     <?php
-    include "../_foot.php";
+    include "_foot.php";

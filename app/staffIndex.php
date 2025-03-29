@@ -10,6 +10,8 @@ include '_staffHead.php';
 
 </head>
 <body>
+<a href="staffOrder.php">Order</a>
+
 
 <?php
 include "_foot.php";
