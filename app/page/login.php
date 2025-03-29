@@ -20,6 +20,8 @@ if (is_post()) {
         $_err['email'] = 'Your email has not been verified. <a href="#" id="resendVerification" data-email="'.htmlspecialchars($email).'" style="float: right;">Did not receive email?</a>';
     } elseif ($emails->role !== 'member'){
         $_err['email'] = 'You are not a member';
+    } else if (!is_email($email)) {
+        $_err['email'] = 'Invalid email format';
     }
 
     // Validate password (Only check if username is valid)

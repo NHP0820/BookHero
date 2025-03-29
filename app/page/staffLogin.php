@@ -18,6 +18,8 @@ if (is_post()) {
         $_err['email'] = 'Email not found';
     } elseif ($emails->email_verified_at != 1){
         $_err['email'] = 'Your email has not been verified. <a href="#" id="resendVerification" data-email="'.htmlspecialchars($email).'" style="float: right;">Did not receive email?</a>';
+    } else if (!is_email($email)) {
+        $_err['email'] = 'Invalid email format';
     }
 
     // Validate password (Only check if username is valid)
@@ -77,7 +79,7 @@ $_title = 'Staff Login'
         </button>
     </div>
     <?= err('password') ?>
-    <a href="/" class="register" style="float: right; padding: 5px;">Forget Password</a><br>
+    <!--<a href="/" class="register" style="float: right; padding: 5px;">Forget Password</a><br>-->
 
     <section>
         <button style="width: 100%;">Login</button>

@@ -165,3 +165,8 @@ $(() => {
     });
 
 });
+
+// Autofocus
+$('form :input:not(button):first').focus();
+$('.err:first').prev().focus();
+$('.err:first').prev().find(':input:first').focus();

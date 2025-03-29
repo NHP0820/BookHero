@@ -36,7 +36,9 @@ include '_head.php';
                 ?>
 
                 <?php if (empty($photos)): ?>
-                    <p>No image available</p>
+                    <img src="/images/default.png" 
+                        alt="default Image" 
+                        onerror="this.onerror=null; this.src='/images/default.png';">
                 <?php else: ?>
                     <?php foreach ($photos as $productPhoto): ?>
                         
@@ -44,19 +46,20 @@ include '_head.php';
                             <a target="/page/login.php" href="/images/<?= $productPhoto->product_photo ?>">
                                 <img src="/images/<?= $productPhoto->product_photo ?>" 
                                     alt="Product Image" 
-                                    onerror="this.onerror=null; this.src='default-image.jpg';">
+                                    onerror="this.onerror=null; this.src='/images/default.png';">
                             </a>
                         <?php else: ?>
-                            <a target="_blank" href="/images/<?= $$productPhoto->product_photo ?>">
+                            <a target="_blank" href="/images/<?= $productPhoto->product_photo ?>">
                                 <img src="/images/<?= $productPhoto->product_photo ?>" 
                                     alt="Product Image" 
-                                    onerror="this.onerror=null; this.src='default-image.jpg';">
+                                    onerror="this.onerror=null; this.src='/images/default.png';">onerror="this.onerror=null; this.src='default-image.jpg';">
                             </a>
                         <?php endif; ?>
                     <?php endforeach; ?>
                 <?php endif; ?>
-                <div class="desc"><strong><?= $product->name ?></strong></div>
-                <div class="desc" style="color: orangered; margin-top: 10px;">RM<?= $product->price ?></div>
+                <!--<div class="desc"><strong><?= $product->name ?></strong></div>
+                <div class="desc"><strong><?= $product->author ?></strong></div>
+                <div class="desc" style="color: orangered; margin-top: 10px;">RM<?= $product->price ?></div>-->
             </div>
         <?php endif; ?>
     <?php endforeach;?>

@@ -73,7 +73,7 @@ function get_file($key) {
 }
 
 // Crop, resize and save photo
-function save_photo($f, $folder, $width = 200, $height = 200) {
+function save_photo($f, $folder, $width = 200, $height = 400) {
     $photo = uniqid() . '.jpg';
     
     require_once 'lib/SimpleImage.php';
@@ -88,6 +88,11 @@ function save_photo($f, $folder, $width = 200, $height = 200) {
 // Is money?
 function is_money($value) {
     return preg_match('/^\-?\d+(\.\d{1,2})?$/', $value);
+}
+
+// Is email?
+function is_email($value) {
+    return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
 }
 
 // ============================================================================

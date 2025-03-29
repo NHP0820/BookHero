@@ -10,14 +10,16 @@ if (is_post()) {
 
     if ($username == ''){
         $_err['username'] = 'Required';
-    }else if (!is_unique($username, 'user', 'username')) {
+    } else if (!is_unique($username, 'user', 'username')) {
         $_err['username'] = 'This username exists';
     }
 
     if ($email == ''){
         $_err['email'] = 'Required';
-    }else if (!is_unique($email, 'user', 'email')) {
+    } else if (!is_unique($email, 'user', 'email')) {
         $_err['email'] = 'This email exists';
+    } else if (!is_email($email)) {
+        $_err['email'] = 'Invalid email format';
     }
 
     if ($password == ''){
