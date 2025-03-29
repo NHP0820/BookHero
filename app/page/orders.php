@@ -17,7 +17,7 @@ include '../_head.php';
 
 
 <?php
-$orderlist = $_db->prepare('SELECT 
+$orderlist = $_db->prepare("SELECT 
     o.order_id, 
     o.user_id, 
     o.order_date, 
@@ -30,15 +30,18 @@ $orderlist = $_db->prepare('SELECT
     p.description AS product_description,
     p.price AS product_price,
     p.stock_quantity AS product_stock_quantity,
-    p.category_id AS product_category_id,
     (SELECT pp.product_photo FROM product_photo pp WHERE pp.product_id = p.product_id LIMIT 1) AS product_photo,
     od.quantity, 
     od.price_at_purchase, 
-    od.voucher_id
+    od.voucher_id,
+    GROUP_CONCAT(c.category ORDER BY c.category SEPARATOR ', ') AS product_categories
 FROM `order` o
 JOIN order_detail od ON o.order_id = od.order_id
 JOIN product p ON od.product_id = p.product_id
-WHERE o.user_id = ? AND o.status_id = 1;');
+LEFT JOIN category_product cp ON cp.product_id = p.product_id
+LEFT JOIN category c ON c.category = cp.category_id
+WHERE o.user_id = ? AND o.status_id = 1
+GROUP BY o.order_id, od.order_detail_id, p.product_id;");
 $orderlist->execute([$user_id]);
 
 
@@ -62,8 +65,10 @@ $totalUnpay = $result['total'];
         <button onclick="showTable('cancel', this)">Cancelled</button>
     </nav>
     <div id="pending-payment" class="order-table">
+       
         <?php
         $groupedOrders = [];
+        
         foreach ($orderlist as $orderItem) {
             $groupedOrders[$orderItem->order_id][] = $orderItem;
         }
@@ -139,7 +144,7 @@ $totalUnpay = $result['total'];
 
 
     <?php
-    $orderlist = $_db->prepare('SELECT 
+    $orderlist = $_db->prepare("SELECT 
     o.order_id, 
     o.user_id, 
     o.order_date, 
@@ -152,15 +157,18 @@ $totalUnpay = $result['total'];
     p.description AS product_description,
     p.price AS product_price,
     p.stock_quantity AS product_stock_quantity,
-    p.category_id AS product_category_id,
     (SELECT pp.product_photo FROM product_photo pp WHERE pp.product_id = p.product_id LIMIT 1) AS product_photo,
     od.quantity, 
     od.price_at_purchase, 
-    od.voucher_id
+    od.voucher_id,
+    GROUP_CONCAT(c.category ORDER BY c.category SEPARATOR ', ') AS product_categories
 FROM `order` o
 JOIN order_detail od ON o.order_id = od.order_id
 JOIN product p ON od.product_id = p.product_id
-WHERE o.user_id = ? AND o.status_id = 2;');
+LEFT JOIN category_product cp ON cp.product_id = p.product_id
+LEFT JOIN category c ON c.category = cp.category_id
+WHERE o.user_id = ? AND o.status_id = 2
+GROUP BY o.order_id, od.order_detail_id, p.product_id;");
     $orderlist->execute([$user_id]);
 
     ?>
@@ -198,14 +206,15 @@ WHERE o.user_id = ? AND o.status_id = 2;');
                     <?= "Delivery To " . $address_name['street'] . ' ' . $address_name['city'] . ' ' . $address_name['state'] . ' ' . $address_name['zip_code'] . ' ' . $address_name['country'] ?>
                     <?php foreach ($products as $orderItem): ?>
 
-                        <div class="product-item" >
-                            <img src="data:image/jpeg;base64,<?= base64_encode($orderItem->product_photo) ?>" width="130px" alt="Product Image">
-                            <div class="product-details"> <table style="width: 100%;" class="product-detail-table">
+                        <div class="product-item">
+                            <img src="../images/<?= $orderItem->product_photo ?>" width="130px" alt="Product Image">
+                            <div class="product-details">
+                                <table style="width: 100%;" class="product-detail-table">
                                     <tr>
                                         <td>
                                             <h3><?= $orderItem->product_name ?></h3>
                                         </td>
-                                        <td >
+                                        <td>
                                             <p class="product-desc"><?= $orderItem->product_description ?></p>
                                         </td>
                                         <td>
@@ -246,7 +255,7 @@ WHERE o.user_id = ? AND o.status_id = 2;');
 
 
     <?php
-    $orderlist = $_db->prepare('SELECT 
+    $orderlist = $_db->prepare("SELECT 
     o.order_id, 
     o.user_id, 
     o.order_date, 
@@ -259,15 +268,18 @@ WHERE o.user_id = ? AND o.status_id = 2;');
     p.description AS product_description,
     p.price AS product_price,
     p.stock_quantity AS product_stock_quantity,
-    p.category_id AS product_category_id,
     (SELECT pp.product_photo FROM product_photo pp WHERE pp.product_id = p.product_id LIMIT 1) AS product_photo,
     od.quantity, 
     od.price_at_purchase, 
-    od.voucher_id
+    od.voucher_id,
+    GROUP_CONCAT(c.category ORDER BY c.category SEPARATOR ', ') AS product_categories
 FROM `order` o
 JOIN order_detail od ON o.order_id = od.order_id
 JOIN product p ON od.product_id = p.product_id
-WHERE o.user_id = ? AND o.status_id = 3;');
+LEFT JOIN category_product cp ON cp.product_id = p.product_id
+LEFT JOIN category c ON c.category = cp.category_id
+WHERE o.user_id = ? AND o.status_id = 3
+GROUP BY o.order_id, od.order_detail_id, p.product_id;");
     $orderlist->execute([$user_id]);
 
     ?>
@@ -305,8 +317,9 @@ WHERE o.user_id = ? AND o.status_id = 3;');
                     <?php foreach ($products as $orderItem): ?>
 
                         <div class="product-item">
-                            <img src="data:image/jpeg;base64,<?= base64_encode($orderItem->product_photo) ?>" width="130px" alt="Product Image">
-                            <div class="product-details"> <table style="width: 100%;" class="product-detail-table">
+                            <img src="../images/<?= $orderItem->product_photo ?>" width="130px" alt="Product Image">
+                            <div class="product-details">
+                                <table style="width: 100%;" class="product-detail-table">
                                     <tr>
                                         <td>
                                             <h3><?= $orderItem->product_name ?></h3>
@@ -352,29 +365,32 @@ WHERE o.user_id = ? AND o.status_id = 3;');
 
 
     <?php
-    $orderlist = $_db->prepare('SELECT 
+    $orderlist = $_db->prepare("SELECT 
     o.order_id, 
     o.user_id, 
     o.order_date, 
     o.total_amount, 
     o.status_id, 
     o.address_id, 
-    o.cancel_desc, 
+    o.cancel_desc,
     od.order_detail_id, 
     od.product_id, 
     p.name AS product_name,
     p.description AS product_description,
     p.price AS product_price,
     p.stock_quantity AS product_stock_quantity,
-    p.category_id AS product_category_id,
     (SELECT pp.product_photo FROM product_photo pp WHERE pp.product_id = p.product_id LIMIT 1) AS product_photo,
     od.quantity, 
     od.price_at_purchase, 
-    od.voucher_id
+    od.voucher_id,
+    GROUP_CONCAT(c.category ORDER BY c.category SEPARATOR ', ') AS product_categories
 FROM `order` o
 JOIN order_detail od ON o.order_id = od.order_id
 JOIN product p ON od.product_id = p.product_id
-WHERE o.user_id = ? AND o.status_id = 4;');
+LEFT JOIN category_product cp ON cp.product_id = p.product_id
+LEFT JOIN category c ON c.category = cp.category_id
+WHERE o.user_id = ? AND o.status_id = 4
+GROUP BY o.order_id, od.order_detail_id, p.product_id;");
     $orderlist->execute([$user_id]);
 
     ?>
@@ -396,10 +412,12 @@ WHERE o.user_id = ? AND o.status_id = 4;');
             }, $products));
             ?>
             <details class="order-dropdown">
-                <summary style="display: flex; justify-content: space-between;">
+                <summary style=" justify-content: space-between;">
+             
                     <span>Order No : <?= $orderId ?></span>
                     <span style="padding-right: 30px;">Cancel Reason : <?= $orderItem->cancel_desc ?></span>
 
+                    <span class="total-amount">Canceled By <?= $groupedOrders[$orderId][0]->order_date ?></span>
                     <span class="total-amount">Total: RM<?= $totalAmount ?></span>
 
                 </summary>
@@ -408,14 +426,15 @@ WHERE o.user_id = ? AND o.status_id = 4;');
                     $address = $_db->prepare('SELECT * FROM address WHERE address_id = ?');
                     $address->execute([$orderItem->address_id]);
                     $address_name = $address->fetch(PDO::FETCH_ASSOC);
-
+                    
                     ?>
-                    <?= "Delivery To " . $address_name['street'] . ' ' . $address_name['city'] . ' ' . $address_name['state'] . ' ' . $address_name['zip_code'] . ' ' . $address_name['country'] ?>
+                    <?= "Delivery To " . $address_name['street'] . ' ' . $address_name['city'] . ' ' . $address_name['state'] . ' ' . $address_name['zip_code'] . ' ' . $address_name['country'] . '     ' ?>
                     <?php foreach ($products as $orderItem): ?>
 
                         <div class="product-item">
-                            <img src="data:image/jpeg;base64,<?= base64_encode($orderItem->product_photo) ?>" width="130px" alt="Product Image">
-                            <div class="product-details"> <table style="width: 100%;" class="product-detail-table">
+                            <img src="../images/<?= $orderItem->product_photo ?>" width="130px" alt="Product Image">
+                            <div class="product-details">
+                                <table style="width: 100%;" class="product-detail-table">
                                     <tr>
                                         <td>
                                             <h3><?= $orderItem->product_name ?></h3>
