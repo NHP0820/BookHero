@@ -12,6 +12,7 @@ $orderlist = $_db->prepare("
     o.total_amount, 
     o.status_id, 
     o.expired_time, 
+    o.cancel_desc,
     GROUP_CONCAT(CONCAT(p.name, ' (x', od.quantity, ' RM', od.price_at_purchase, ')') SEPARATOR '<br>') AS order_details
 FROM `order` o
 JOIN user u ON o.user_id = u.user_id
@@ -48,15 +49,19 @@ if (isset($_POST['mark_done'])) {
 ?>
 
 <body>
+    <h1 style="text-align: center;">
+        Admin Order Management
+    </h1>
+
 <table class="order-table">
     <tr>
         <th>Order ID</th>
         <th>User</th>
         <th>Order Date</th>
         <th>Total Amount (RM)</th>
-        <th>Status</th>
-        <th>Expired Time</th>
+        <th>Completed Time</th>
         <th>Order Details</th>
+        <th>Status</th>
         <th>Action</th>
     </tr>
     <?php foreach ($orders as $order) { ?>
@@ -65,6 +70,8 @@ if (isset($_POST['mark_done'])) {
         <td><?= $order['user_name'] ?></td>
         <td><?= $order['order_date'] ?></td>
         <td>RM<?= number_format($order['total_amount'], 2) ?></td>
+        <td><?= !empty($order['expired_time']) ? date('Y-m-d', strtotime($order['expired_time'])) : '' ?></td>
+        <td><?= $order['order_details'] ?></td>
         <td>
             <?php 
             if ($order['status_id'] == 1) {
@@ -77,9 +84,7 @@ if (isset($_POST['mark_done'])) {
                 echo '<span class="status-cancelled">Cancelled</span>';
             }
             ?>
-        </td>
-        <td><?= $order['expired_time'] ?></td>
-        <td><?= $order['order_details'] ?></td>
+        </td>   
         <td>
             <?php if ($order['status_id'] == 2) { ?>
                 <form method="post">
