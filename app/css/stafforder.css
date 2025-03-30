@@ -1,0 +1,72 @@
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.order-table th, .order-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.order-table th {
+    background: #03a9f4;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.order-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+
+.status-pending {
+    color: #ff9800;
+    font-weight: bold;
+}
+.status-delivery {
+    color: #17a2b8; 
+    font-weight: bold;
+}
+.status-done {
+    color: #28a745; 
+    font-weight: bold;
+}
+.status-cancelled {
+    color: #dc3545; 
+    font-weight: bold;
+}
+
+
+.order-detail {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.order-detail strong {
+    color: #333;
+}
+
+
+.action-button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-delivered {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-delivered:hover {
+    background-color: #218838;
+}
