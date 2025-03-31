@@ -77,4 +77,5 @@ include '../_head.php';
     </div>
 </div>
 
-<?php include '../_foot.php'; ?>
+<?php 
+include '../_foot.php';
