@@ -161,6 +161,11 @@ function html_file($key, $accept = '', $attr = '') {
     echo "<input type='file' id='$key' name='$key' accept='$accept' $attr>";
 }
 
+function html_search($key, $attr = '') {
+    $value = encode($GLOBALS[$key] ?? '');
+    echo "<input type='search' id='$key' name='$key' value='$value' $attr>";
+}
+
 // ============================================================================
 // Error Handlings
 // ============================================================================

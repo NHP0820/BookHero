@@ -39,14 +39,6 @@
     <nav>
         <div class="nav-links">
             <a href="/">Home Page</a>
-            <div class="dropdown"><a href="/">Category</a>
-                <div class="dropdown-category">
-                    <?php $categoryArr = $_db->query('SELECT * FROM category')->fetchAll(); ?>
-                    <?php foreach ($categoryArr as $category): ?>
-                        <a href="/"><?= $category->name ?></a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
             <?php if (isset($_SESSION['user'])): ?>
                 <a href="/page/cart/shoppingCart.php">Cart</a>
             <?php else: ?>
@@ -54,18 +46,5 @@
             <?php endif; ?>
             
         </div>
-        <div class="search-container">
-            <?php if (basename($_SERVER['PHP_SELF']) == 'index.php'): ?>
-                <div class="topnav">
-                    <div class="search-container">
-                        <form action="/action_page.php">
-                        <input type="text" placeholder="Search.." name="search">
-                        <button type="submit"><i class="fa fa-search"></i></button>
-                        </form>
-                    </div>
-                </div>
-            <?php endif; ?>
-        </div>
     </nav>
-
-    <main>
+<main>
