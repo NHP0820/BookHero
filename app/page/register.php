@@ -10,18 +10,22 @@ if (is_post()) {
 
     if ($username == ''){
         $_err['username'] = 'Required';
-    }else if (!is_unique($username, 'user', 'username')) {
+    } else if (!is_unique($username, 'user', 'username')) {
         $_err['username'] = 'This username exists';
     }
 
     if ($email == ''){
         $_err['email'] = 'Required';
-    }else if (!is_unique($email, 'user', 'email')) {
+    } else if (!is_unique($email, 'user', 'email')) {
         $_err['email'] = 'This email exists';
+    } else if (!is_email($email)) {
+        $_err['email'] = 'Invalid email format';
     }
 
     if ($password == ''){
         $_err['password'] = 'Required';
+    } elseif (strlen($password) < 6) {
+        $_err['password'] = 'Password must be at least 6 characters';
     }
 
     if ($confirmPassword == ''){
@@ -40,6 +44,8 @@ if (is_post()) {
         $result = $stm->execute([$username, $email, $hashedPassword, 'member', null, '0', $verificationToken, $tokenExpiry]);
         
         if ($result) {
+            $stm = $_db->prepare('INSERT INTO cart (user_id) VALUES(?)');
+            $stm->execute([$_db->lastInsertId()]);
             $verificationLink = "http://localhost:8000/page/verifyEmail.php?token=$verificationToken";
 
             $subject = 'Verify Your Email, ' . $username . '!';

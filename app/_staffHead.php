@@ -15,7 +15,7 @@
     <div id="info"><?= temp('info') ?></div>
 
     <header>
-        <h1><a href="/">BookHero</a></h1>
+        <h1><a href="../../staffIndex.php">BookHero</a></h1>
 
         <div class="dropdown">
             <?php if (!isset($_SESSION['user'])):?>
@@ -27,8 +27,6 @@
                 <button class="dropbtn"><?= htmlspecialchars($_SESSION['user']['username']) ?></button>
                 <div class="dropdown-content">
                     <a href="#">Profile</a>
-                    <a href="/page/orders.php">Orders</a>
-                    <a href="#">Whishlist</a>
                     <a href="/page/logout.php">Logout</a>
                 </div>
             <?php endif;?>
@@ -38,13 +36,9 @@
 
     <nav>
         <div class="nav-links">
-            <a href="/">Home Page</a>
-            <?php if (isset($_SESSION['user'])): ?>
-                <a href="/page/cart/shoppingCart.php">Cart</a>
-            <?php else: ?>
-                <a href="/page/login.php">Cart</a>
-            <?php endif; ?>
-            
+            <a href="../../staffIndex.php">Home Page</a>
+            <a href="/page/productlist/index.php">Maintain Product</a>            
         </div>
     </nav>
-<main>
+
+   

@@ -8,7 +8,7 @@ if (is_post()) {
 
     $stmt = $_db->prepare('SELECT * FROM user WHERE email = ?');
     $stmt->execute([$email]);
-    $emails = $stmt->fetch();
+    $emails = $stmt->fetch(PDO::FETCH_OBJ);
 
     // Validate username
     if ($email == '') {
@@ -18,6 +18,10 @@ if (is_post()) {
         $_err['email'] = 'Email not found';
     } elseif ($emails->email_verified_at != 1){
         $_err['email'] = 'Your email has not been verified. <a href="#" id="resendVerification" data-email="'.htmlspecialchars($email).'" style="float: right;">Did not receive email?</a>';
+    } elseif ($emails->role !== 'member'){
+        $_err['email'] = 'You are not a member';
+    } else if (!is_email($email)) {
+        $_err['email'] = 'Invalid email format';
     }
 
     // Validate password (Only check if username is valid)

@@ -12,7 +12,7 @@ class SimplePager {
         global $_db;
 
         // Set [limit] and [page]
-        $this->limit = ctype_digit($limit) ? max($limit, 1) : 10;
+        $this->limit = ctype_digit($limit) ? max($limit, 1) : 12;
         $this->page = ctype_digit($page) ? max($page, 1) : 1;
 
         // Set [item count]

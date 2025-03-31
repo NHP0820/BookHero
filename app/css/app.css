@@ -98,19 +98,9 @@ main h1 {
     position: relative;
 }
 
-.table .popup {
-    position: absolute;
-    top: 50%;
-    left: 100%;
-    translate: 5px -50%;
-    z-index: 999;
-    border: 1px solid #333;
-    display: none;
-}
 
-.table tr:hover .popup {
-    display: block;
-}
+
+
 
 /* Flash Message ----------------------------------------------------------- */
 
@@ -148,8 +138,6 @@ main h1 {
 label > *{
     vertical-align: text-top;
 }
-
-
 
 .err{
     color: red;
@@ -227,12 +215,18 @@ label > *{
 }
 
 /* Gallery Container */
+.content-wrapper {
+    display: flex;
+    align-items: flex-start; /* Aligns items to the top */
+}
+
+/* Product Grid */
 .responsive {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 10px;
-    margin-top: 20px;
+    flex-grow: 1; /* Allows it to take remaining space */
 }
 
 /* Individual Gallery Item */
@@ -250,7 +244,7 @@ label > *{
 
 .gallery img {
     width: 100%;
-    height: 250px;
+    height: 400px;
     object-fit: cover;
     transition: 0.3s;
 }
@@ -311,9 +305,12 @@ label > *{
     position: absolute;
     background-color: white;
     min-width: 150px;
+    max-height: 250px; /* Set max height */
+    overflow-y: auto;  /* Enable scrolling */
     box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
     z-index: 1;
     flex-direction: column;
+    border-radius: 5px;
 }
 
 .dropdown:hover .dropdown-category {
@@ -346,7 +343,9 @@ form css
 
 .form input[type="text"],
 .form select, 
-.form input[type="password"]{
+.form input[type="password"],
+.form input[type="number"],
+.form input[type="file"]{
     width: 100%;
     padding: 8px;
     margin-top: 5px;
@@ -436,7 +435,8 @@ nav a {
 
 .search-container {
     display: flex;
-    align-items: center;
+    float: right;
+    margin-top: -40px;
 }
 
 .search-container input {
@@ -454,4 +454,21 @@ nav a {
 
 .search-container button:hover {
     background: #ccc;
+}
+
+.categoryList {
+    width: 200px;
+    padding: 10px;
+    float: left;
+}
+
+.categoryList a {
+    display: block;
+    text-decoration: none;
+    color: black;
+    padding: 5px 0;
+}
+
+.categoryList a:hover {
+    background-color: #ddd;
 }
