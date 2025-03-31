@@ -97,7 +97,11 @@ include '_head.php';
                             onerror="this.onerror=null; this.src='/images/default.png';">
                     <?php else: ?>
                         <?php foreach ($photos as $productPhoto): ?>
+<<<<<<< HEAD
                             <a href="../page/productProfile.php?product_id=<?= htmlspecialchars($product->product_id) ?>">
+=======
+                            <a target="_blank" href="/images/<?= htmlspecialchars($productPhoto->product_photo) ?>">
+>>>>>>> a7f660b57d74b5da9039da176a1ad2e40dc65d8c
                                 <img src="/images/<?= htmlspecialchars($productPhoto->product_photo) ?>" 
                                     alt="Product Image" 
                                     onerror="this.onerror=null; this.src='/images/default.png';">
