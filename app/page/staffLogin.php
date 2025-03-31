@@ -77,7 +77,7 @@ $_title = 'Staff Login'
     <a href="/" class="register" style="float: right; padding: 5px;">Forget Password</a><br>
 
     <section>
-        <button style="width: 100%;">Login</button>
+        <a href="../category/category.php"><button style="width: 100%;">Login</button></a>
     </section><br>
     <a href="login.php" class="register">Member login</a>
 </form>
