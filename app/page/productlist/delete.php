@@ -6,41 +6,44 @@ include '../../_base.php';
 if (is_post()) {
     $id = req('id');
 
-    // Start transaction
+    // Begin transaction
     $_db->beginTransaction();
 
     try {
-        // First, get and delete the photo file and record
+        // Delete from category_product first (foreign key constraint)
+        $stm = $_db->prepare('DELETE FROM category_product WHERE product_id = ?');
+        $stm->execute([$id]);
+
+        // Get product photo filename before deleting
         $stm = $_db->prepare('SELECT product_photo FROM product_photo WHERE product_id = ?');
         $stm->execute([$id]);
-        $photos = $stm->fetchAll(PDO::FETCH_COLUMN);
+        $photo = $stm->fetchColumn();
 
-        // Delete photo files
-        foreach ($photos as $photo) {
-            if ($photo && file_exists("../../images/$photo")) {
-                unlink("../photos/$photo");
-            }
-        }
-
-        // Delete photo records
+        // Delete from product_photo
         $stm = $_db->prepare('DELETE FROM product_photo WHERE product_id = ?');
         $stm->execute([$id]);
 
-        // Then delete the product
+        // Delete from product
         $stm = $_db->prepare('DELETE FROM product WHERE product_id = ?');
         $stm->execute([$id]);
 
         // Commit transaction
         $_db->commit();
 
-        temp('info', 'Record deleted');
+        // Delete the photo file if it exists
+        if ($photo && file_exists("../photos/$photo")) {
+            unlink("../photos/$photo");
+        }
+
+        temp('info', 'Product deleted successfully');
+        redirect('index.php');
+
     } catch (Exception $ex) {
-        // Rollback on error
         $_db->rollBack();
-        temp('error', 'Failed to delete record');
+        temp('danger', 'Failed to delete product');
+        redirect('index.php');
     }
 }
 
+// If not POST request, redirect to index
 redirect('index.php');
-
-// ----------------------------------------------------------------------------

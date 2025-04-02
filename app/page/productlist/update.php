@@ -3,6 +3,9 @@ include '../../_base.php';
 
 // ----------------------------------------------------------------------------
 
+// Get all categories
+$categories = $_db->query('SELECT * FROM category ORDER BY name')->fetchAll();
+
 if (is_get()) {
     $id = req('id');
 
@@ -19,31 +22,50 @@ if (is_get()) {
         redirect('index.php');
     }
 
+    // Get current categories using category_id
+    $stm = $_db->prepare('
+        SELECT category_id FROM category_product
+        WHERE product_id = ?
+    ');
+    $stm->execute([$id]);
+    $currentCategories = $stm->fetchAll(PDO::FETCH_COLUMN);
+
     extract((array)$p);
     $_SESSION['photo'] = $p->product_photo;
 }
 
 if (is_post()) {
     $id = req('id');
-    $name = req('name');
+    $productName = req('name');
+    $author = req('author');
     $description = req('description');
     $price = req('price');
-    $stock_quantity = req('stock_quantity');
+    $stockQuantity = req('stock_quantity');
+    $selectedCategories = req('categories') ?: [];
     $f = get_file('product_photo');
-    $product_photo = $_SESSION['photo'];
+    $productPhoto = $_SESSION['photo'];
 
     // Validate: name
-    if ($name == '') {
+    if ($productName == '') {
         $_err['name'] = 'Required';
     }
-    else if (strlen($name) > 100) {
+    else if (strlen($productName) > 100) {
         $_err['name'] = 'Maximum 100 characters';
     }
 
+    // Validate: author
+    if ($author == '') {
+        $_err['author'] = 'Required';
+    }
+    else if (strlen($author) > 100) {
+        $_err['author'] = 'Maximum 100 characters';
+    }
+
+    // Validate: description
     if (strlen($description) > 500) {
         $_err['description'] = 'Maximum 500 characters';
     }
-    
+
     // Validate: price
     if ($price == '') {
         $_err['price'] = 'Required';
@@ -56,17 +78,22 @@ if (is_post()) {
     }
 
     // Validate: stock_quantity
-    if ($stock_quantity == '') {
+    if ($stockQuantity == '') {
         $_err['stock_quantity'] = 'Required';
     }
-    else if (!is_numeric($stock_quantity)) {
+    else if (!is_numeric($stockQuantity)) {
         $_err['stock_quantity'] = 'Must be integer';
     }
-    else if ($stock_quantity < 1 || $stock_quantity > 100) {
+    else if ($stockQuantity < 1 || $stockQuantity > 100) {
         $_err['stock_quantity'] = 'Must between 1 - 100';
     }
 
-    // Validate: photo (file)
+    // Validate: categories
+    if (empty($selectedCategories)) {
+        $_err['categories'] = 'Please select at least one category';
+    }
+
+    // Validate: photo (only if new file uploaded)
     if ($f) {
         if (!str_starts_with($f->type, 'image/')) {
             $_err['product_photo'] = 'Must be image';
@@ -81,49 +108,63 @@ if (is_post()) {
         $_db->beginTransaction();
         
         try {
-            // Update photo if a new one was uploaded
+            // Update product
+            $stm = $_db->prepare('
+                UPDATE product
+                SET name = ?, author = ?, description = ?, price = ?, stock_quantity = ?
+                WHERE product_id = ?
+            ');
+            $stm->execute([$productName, $author, $description, $price, $stockQuantity, $id]);
+
+            // Update categories - first remove existing
+            $stm = $_db->prepare('DELETE FROM category_product WHERE product_id = ?');
+            $stm->execute([$id]);
+            
+            // Then add new selections using category_id
+            foreach ($selectedCategories as $categoryId) {
+                $stm = $_db->prepare('
+                    INSERT INTO category_product (category_id, product_id)
+                    VALUES (?, ?)
+                ');
+                $stm->execute([$categoryId, $id]);
+            }
+
+            // Update photo if new file uploaded
             if ($f) {
                 // Delete old photo
-                if ($product_photo) {
-                    @unlink("../../images/$product_photo");
+                if ($productPhoto && file_exists("../photos/$productPhoto")) {
+                    unlink("../photos/$productPhoto");
                 }
                 
                 // Save new photo
-                $product_photo = save_photo($f, '../../images');
+                $productPhoto = save_photo($f, '../photos');
                 
                 // Update photo record
                 $stm = $_db->prepare('
-                    UPDATE product_photo 
+                    UPDATE product_photo
                     SET product_photo = ?
                     WHERE product_id = ?
                 ');
-                $stm->execute([$product_photo, $id]);
+                $stm->execute([$productPhoto, $id]);
                 
-                // If no rows affected, insert new photo record
+                // If no photo record exists, insert new one
                 if ($stm->rowCount() === 0) {
                     $stm = $_db->prepare('
                         INSERT INTO product_photo (product_photo, product_id)
                         VALUES (?, ?)
                     ');
-                    $stm->execute([$product_photo, $id]);
+                    $stm->execute([$productPhoto, $id]);
                 }
             }
 
-            // Update product
-            $stm = $_db->prepare('
-                UPDATE product
-                SET name = ?, description = ?, price = ?, stock_quantity = ?
-                WHERE product_id = ?
-            ');
-            $stm->execute([$name, $description, $price, $stock_quantity, $id]);
-
             $_db->commit();
             
-            temp('info', 'Record updated');
+            temp('info', 'Product updated successfully');
             redirect('index.php');
         } catch (Exception $ex) {
             $_db->rollBack();
-            $_err[] = 'Failed to update record';
+            $_err[] = 'Failed to update product. Please try again.';
+            error_log("Update error: " . $ex->getMessage());
         }
     }
 }
@@ -131,44 +172,71 @@ if (is_post()) {
 // ----------------------------------------------------------------------------
 
 $_title = 'Product | Update';
-include '../../_staffHead.php';
+include '../_head.php';
 ?>
 
 <p>
-    <button data-get="index.php">Index</button>
+    <button data-get="index.php">Back to Products</button>
 </p>
 
 <form method="post" class="form" enctype="multipart/form-data" novalidate>
     <input type="hidden" name="id" value="<?= $id ?>">
 
-    <label for="name">Name</label>
-    <?= html_text('name', 'maxlength="100"') ?>
+    <label for="name">Product Name</label>
+    <?= html_text('name', 'maxlength="100" value="'.($name ?? '').'"') ?>
     <?= err('name') ?>
 
+    <label for="author">Author</label>
+    <?= html_text('author', 'maxlength="100" value="'.($author ?? '').'"') ?>
+    <?= err('author') ?>
+
     <label for="description">Description</label>
-    <?= html_text('description', 'maxlength="500"') ?>
+    <textarea id="description" name="description" maxlength="500" rows="3"><?= encode($description ?? '') ?></textarea>
     <?= err('description') ?>
 
-    <label for="price">Price</label>
-    <?= html_number('price', 0.01, 99.99, 0.01) ?>
+    <label for="price">Price (RM)</label>
+    <?= html_number('price', 0.01, 99.99, 0.01, 'value="'.($price ?? '').'"') ?>
     <?= err('price') ?>
 
     <label for="stock_quantity">Stock Quantity</label>
-    <?= html_number('stock_quantity', 1, 100, 1) ?>
+    <?= html_number('stock_quantity', 1, 100, 1, 'value="'.($stock_quantity ?? '').'"') ?>
     <?= err('stock_quantity') ?>
 
-    <label for="product_photo">Photo</label>
+    <label for="categories">Categories</label>
+    <select id="categories" name="categories[]" multiple="multiple" class="form-control">
+        <?php foreach ($categories as $c): ?>
+            <option value="<?= $c->category ?>" 
+                <?= in_array($c->category, $currentCategories ?? []) ? 'selected' : '' ?>>
+                <?= $c->name ?>
+            </option>
+        <?php endforeach ?>
+    </select>
+    <?= err('categories') ?>
+    <small class="text-muted">Hold Ctrl/Cmd to select multiple</small>
+
+    <label for="product_photo">Product Photo</label>
     <label class="upload" tabindex="0">
         <?= html_file('product_photo', 'image/*', 'hidden') ?>
-        <img src="/images/<?= $product_photo ?? 'photo.jpg' ?>">
+        <img src="/photos/<?= $productPhoto ?? 'photo.jpg' ?>">
     </label>
     <?= err('product_photo') ?>
 
     <section>
-        <button>Submit</button>
+        <button>Update</button>
         <button type="reset">Reset</button>
     </section>
 </form>
 
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#categories').select2({
+        placeholder: "Select categories",
+        width: '100%'
+    });
+});
+</script>
+
 <?php
-include '../../_foot.php';
+include '../_foot.php';

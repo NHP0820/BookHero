@@ -3,22 +3,35 @@ include '../../_base.php';
 
 // ----------------------------------------------------------------------------
 
+// Get all categories
+$categories = $_db->query('SELECT * FROM category ORDER BY name')->fetchAll();
+
 if (is_post()) {
-    $name = req('name');
+    $productName = req('name');
+    $author = req('author');
     $description = req('description');
     $price = req('price');
-    $stock_quantity = req('stock_quantity');
+    $stockQuantity = req('stock_quantity');
+    $selectedCategories = req('categories') ?: [];
     $f = get_file('product_photo');
 
     // Validate: name
-    if ($name == '') {
+    if ($productName == '') {
         $_err['name'] = 'Required';
     }
-    else if (strlen($name) > 100) {
+    else if (strlen($productName) > 100) {
         $_err['name'] = 'Maximum 100 characters';
     }
 
-    // Validate: desc
+    // Validate: author
+    if ($author == '') {
+        $_err['author'] = 'Required';
+    }
+    else if (strlen($author) > 100) {
+        $_err['author'] = 'Maximum 100 characters';
+    }
+
+    // Validate: description
     if (strlen($description) > 500) {
         $_err['description'] = 'Maximum 500 characters';
     }
@@ -35,17 +48,22 @@ if (is_post()) {
     }
 
     // Validate: stock_quantity
-    if ($stock_quantity == '') {
+    if ($stockQuantity == '') {
         $_err['stock_quantity'] = 'Required';
     }
-    else if (!is_numeric($stock_quantity)) {
+    else if (!is_numeric($stockQuantity)) {
         $_err['stock_quantity'] = 'Must be integer';
     }
-    else if ($stock_quantity < 1 || $stock_quantity > 100) {
+    else if ($stockQuantity < 1 || $stockQuantity > 100) {
         $_err['stock_quantity'] = 'Must between 1 - 100';
     }
 
-    // Validate: photo (file)
+    // Validate: categories
+    if (empty($selectedCategories)) {
+        $_err['categories'] = 'Please select at least one category';
+    }
+
+    // Validate: photo
     if (!$f) {
         $_err['product_photo'] = 'Required';
     }
@@ -58,33 +76,44 @@ if (is_post()) {
 
     // DB operation
     if (!$_err) {
-        // Start transaction
         $_db->beginTransaction();
         
         try {
             // Insert product
             $stm = $_db->prepare('
-                INSERT INTO product (name, description, price, stock_quantity, category_id)
+                INSERT INTO product (name, author, description, price, stock_quantity)
                 VALUES (?, ?, ?, ?, ?)
             ');
-            $stm->execute([$name, $description, $price, $stock_quantity, 1]);
-            $product_id = $_db->lastInsertId();
+            $stm->execute([$productName, $author, $description, $price, $stockQuantity]);
+            $productId = $_db->lastInsertId();
 
-            // Save photo and insert into product_photo
-            $product_photo = save_photo($f, '../../images');
+            // Insert category relationships
+            foreach ($selectedCategories as $categoryId) {
+                $stm = $_db->prepare('
+                    INSERT INTO category_product (category_id, product_id)
+                    VALUES (?, ?)
+                ');
+                $stm->execute([$categoryId, $productId]);
+            }
+
+            // Save photo
+            $productPhoto = save_photo($f, '../photos');
+            
+            // Insert photo record
             $stm = $_db->prepare('
                 INSERT INTO product_photo (product_photo, product_id)
                 VALUES (?, ?)
             ');
-            $stm->execute([$product_photo, $product_id]);
+            $stm->execute([$productPhoto, $productId]);
 
             $_db->commit();
             
-            temp('info', 'Record inserted');
+            temp('info', 'Product inserted successfully');
             redirect('index.php');
         } catch (Exception $ex) {
             $_db->rollBack();
-            $_err[] = 'Failed to insert record';
+            error_log("Insert Error: " . $ex->getMessage());
+            $_err[] = 'Failed to insert product. Please try again. Error: ' . $ex->getMessage();
         }
     }
 }
@@ -92,23 +121,27 @@ if (is_post()) {
 // ----------------------------------------------------------------------------
 
 $_title = 'Product | Insert';
-include '../../_staffHead.php';
+include '../_head.php';
 ?>
 
 <p>
-    <button data-get="index.php">Index</button>
+    <button data-get="index.php">Back to Products</button>
 </p>
 
 <form method="post" class="form" enctype="multipart/form-data" novalidate>
-    <label for="name">Name</label>
+    <label for="name">Product Name</label>
     <?= html_text('name', 'maxlength="100"') ?>
     <?= err('name') ?>
 
+    <label for="author">Author</label>
+    <?= html_text('author', 'maxlength="100"') ?>
+    <?= err('author') ?>
+
     <label for="description">Description</label>
-    <?= html_text('description', 'maxlength="500"') ?>
+    <textarea id="description" name="description" maxlength="500" rows="3"><?= encode($description ?? '') ?></textarea>
     <?= err('description') ?>
 
-    <label for="price">Price</label>
+    <label for="price">Price (RM)</label>
     <?= html_number('price', 0.01, 99.99, 0.01) ?>
     <?= err('price') ?>
 
@@ -116,7 +149,16 @@ include '../../_staffHead.php';
     <?= html_number('stock_quantity', 1, 100, 1) ?>
     <?= err('stock_quantity') ?>
 
-    <label for="product_photo">Photo</label>
+    <label for="categories">Categories</label>
+    <select id="categories" name="categories[]" multiple="multiple" class="form-control">
+        <?php foreach ($categories as $c): ?>
+            <option value="<?= $c->category ?>"><?= $c->name ?></option>
+        <?php endforeach ?>
+    </select>
+    <?= err('categories') ?>
+    <small class="text-muted">Select multiple categories</small>
+
+    <label for="product_photo">Product Photo</label>
     <label class="upload" tabindex="0">
         <?= html_file('product_photo', 'image/*', 'hidden') ?>
         <img src="/images/photo.jpg">
@@ -129,5 +171,16 @@ include '../../_staffHead.php';
     </section>
 </form>
 
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#categories').select2({
+        placeholder: "Select categories",
+        width: '100%'
+    });
+});
+</script>
+
 <?php
-include '../../_foot.php';
+include '../_foot.php';
