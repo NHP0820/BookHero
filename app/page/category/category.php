@@ -38,11 +38,11 @@ include 'C:\xampp\htdocs\dashboard\bookHero\app\_staffHead.php';
     
     <?php foreach ($arr as $c): ?>
     <tr>
-        <td><?= $c->category ?></td>  <!-- Changed from category_id -->
-        <td><?= $c->name ?></td>      <!-- Changed from category_name -->
+        <td><?= $c->category ?></td>
+        <td><?= $c->name ?></td>    
         <td>
-            <button class="btnp" data-get="cupdate.php?category=<?= $c->category ?>">Update</button>  <!-- Changed param name -->
-            <button class="btnp" data-get="../?category=<?= $c->category ?>">View Products</button>  <!-- Changed param name -->
+            <button class="btnp" data-get="cupdate.php?category=<?= $c->category ?>">Update</button> 
+            <button class="btnp" data-get="../productlist/?category=<?= $c->category ?>">View Products</button>  
         </td>
     </tr>
     <?php endforeach ?>

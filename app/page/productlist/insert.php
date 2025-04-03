@@ -97,7 +97,7 @@ if (is_post()) {
             }
 
             // Save photo
-            $productPhoto = save_photo($f, '../../images/');
+            $productPhoto = save_photo($f, '../../images');
             
             // Insert photo record
             $stm = $_db->prepare('

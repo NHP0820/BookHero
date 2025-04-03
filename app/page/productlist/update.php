@@ -232,7 +232,7 @@ include 'C:\xampp\htdocs\dashboard\bookHero\app\_staffHead.php';
     <label for="product_photo">Product Photo</label>
     <label class="upload" tabindex="0">
         <?= html_file('product_photo', 'image/*', 'hidden') ?>
-        <img src="/photos/<?= $productPhoto ?? 'photo.jpg' ?>">
+        <img src="../../images/<?= $productPhoto ?? 'photo.jpg' ?>">
     </label>
     <?= err('product_photo') ?>
 
