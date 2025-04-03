@@ -41,7 +41,8 @@ if ($category) {
 // ----------------------------------------------------------------------------
 
 $_title = 'Product | Index';
-include '../_head.php';
+include 'C:\xampp\htdocs\dashboard\bookHero\app\_staffHead.php';
+
 ?>
 
 <!-- Rest of your HTML remains exactly the same -->
@@ -62,11 +63,22 @@ include '../_head.php';
     .action-buttons {
         white-space: nowrap;
     }
+
+    .btnp {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
 </style>
 
 <p>
-    <button data-get="insert.php">Insert Product</button>
-    <button data-get="../category/category.php">Manage Categories</button>
+    <button class="btnp" data-get="../productlist/insert.php">Insert Product</button>
+    <button class="btnp" class="" data-get="/page/category/category.php">Manage Categories</button>
     <?php if ($category): ?>
         <button data-get="../product/">View All Products</button>
     <?php endif; ?>
@@ -120,8 +132,8 @@ include '../_head.php';
                 <?php endif; ?>
             </td>
             <td class="action-buttons">
-                <button data-get="update.php?id=<?= $p->product_id ?>" class="btn-sm">Update</button>
-                <button data-post="delete.php?id=<?= $p->product_id ?>" 
+                <button class="btnp" data-get="../productlist/update.php?id=<?= $p->product_id ?>" class="btn-sm">Update</button>
+                <button class="btnp" data-post="../delete.php?id=<?= $p->product_id ?>" 
                         data-confirm="Delete this product?" class="btn-sm btn-danger">Delete</button>
             </td>
         </tr>
@@ -147,4 +159,4 @@ $(document).ready(function() {
 <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 
 <?php
-include '../_foot.php';
+include '../../_foot.php';

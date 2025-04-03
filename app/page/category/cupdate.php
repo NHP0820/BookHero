@@ -36,11 +36,24 @@ if (is_post()) {
 // ----------------------------------------------------------------------------
 
 $_title = 'Category | Update';
-include '../_head.php';
+include 'C:\xampp\htdocs\dashboard\bookHero\app\_staffHead.php';
 ?>
 
+<style>
+.btnp {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+</style>
+
 <p>
-    <button data-get="category.php">Back to Categories</button>
+    <button class="btnp" data-get="category.php">Back to Categories</button>
 </p>
 
 <form method="post" class="form" enctype="multipart/form-data" novalidate>
@@ -49,10 +62,10 @@ include '../_head.php';
     <?= err('name') ?>  <!-- Changed from category_name -->
 
     <section>
-        <button>Submit</button>
-        <button type="reset">Reset</button>
+        <button class="btnp">Submit</button>
+        <button class="btnp" type="reset">Reset</button>
     </section>
 </form>
 
 <?php
-include '../_foot.php';
+include '../../_foot.php';
