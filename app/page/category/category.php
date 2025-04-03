@@ -26,7 +26,7 @@ include 'C:\xampp\htdocs\dashboard\bookHero\app\_staffHead.php';
 
 <p>
     <button class="btnp" data-get="cinsert.php">Insert</button>
-    <button class="btnp" data-get="../productlist/index.php/">View All Products</button>
+    <button class="btnp" data-get="../productlist/index.php">View All Products</button>
 </p>
 
 <table class="table">

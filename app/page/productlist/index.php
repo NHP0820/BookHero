@@ -126,13 +126,13 @@ include 'C:\xampp\htdocs\dashboard\bookHero\app\_staffHead.php';
             </td>
             <td>
                 <?php if ($p->product_photo): ?>
-                    <img src="/photos/<?= $p->product_photo ?>" class="popup">
+                    <img src="../../images/<?= $p->product_photo ?>" class="popup">
                 <?php else: ?>
                     <span class="text-muted">No image</span>
                 <?php endif; ?>
             </td>
             <td class="action-buttons">
-                <button class="btnp" data-get="../productlist/update.php?id=<?= $p->product_id ?>" class="btn-sm">Update</button>
+                <button class="btnp" data-get="update.php?id=<?= $p->product_id ?>">Update</button>
                 <button class="btnp" data-post="../delete.php?id=<?= $p->product_id ?>" 
                         data-confirm="Delete this product?" class="btn-sm btn-danger">Delete</button>
             </td>
