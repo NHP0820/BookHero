@@ -18,7 +18,7 @@ if (is_post()) {
     // DB operation
     if (!$_err) {
         $stm = $_db->prepare('
-            INSERT INTO category (name)  <!-- Changed column name -->
+            INSERT INTO category (name)  
             VALUES (?)
         ');
         $stm->execute([$name]);

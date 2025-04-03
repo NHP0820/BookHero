@@ -126,7 +126,7 @@ include 'C:\xampp\htdocs\dashboard\bookHero\app\_staffHead.php';
             </td>
             <td>
                 <?php if ($p->product_photo): ?>
-                    <img src="/photos/<?= $p->product_photo ?>" class="popup">
+                    <img src="../../images/<?= $p->product_photo ?>" class="popup">
                 <?php else: ?>
                     <span class="text-muted">No image</span>
                 <?php endif; ?>
