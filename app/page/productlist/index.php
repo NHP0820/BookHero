@@ -133,7 +133,7 @@ include 'C:\xampp\htdocs\dashboard\bookHero\app\_staffHead.php';
             </td>
             <td class="action-buttons">
                 <button class="btnp" data-get="update.php?id=<?= $p->product_id ?>">Update</button>
-                <button class="btnp" data-post="../delete.php?id=<?= $p->product_id ?>" 
+                <button class="btnp" data-post="../productlist/delete.php?id=<?= $p->product_id ?>" 
                         data-confirm="Delete this product?" class="btn-sm btn-danger">Delete</button>
             </td>
         </tr>
