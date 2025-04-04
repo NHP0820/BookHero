@@ -234,3 +234,20 @@ function update_cart($id, $unit) {
 }
 
 $_units = array_combine(range(1, 10), range (1, 10));
+
+
+//generate headers for table
+function table_headers($fields, $sort, $dir, $href = '')
+{
+    foreach ($fields as $k => $v) {
+        $d = 'asc'; // Default direction
+        $c = '';    // Default class
+
+        if ($k == $sort) {
+            $d = $dir == 'asc' ? 'desc' : 'asc';
+            $c = $dir;
+        }
+
+        echo "<th><a href='?sort=$k&dir=$d&$href' class='$c'>$v</a></th>";
+    }
+}

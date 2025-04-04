@@ -1,11 +1,28 @@
 <?php
 require '_base.php';
 
+$fields = [
+    'order_id'         => 'Orderid',
+    'user_id'       => 'User',
+    'order_date'     => 'Order Date',
+    'total_amount' => 'Total Amount',
+    'expired_time' => 'Completed Date',
+    'status_id' => 'status',
+    'status_id' => 'status',
+    
+];
 
+$sort = req('sort');
+key_exists($sort, $fields) || $sort = 'order_id';
 
-//-----------------------------------------------------------------------------
-$orderlist = $_db->prepare("
-      SELECT 
+$dir = req('dir');
+in_array($dir, ['asc', 'desc']) || $dir = 'asc';
+
+// (2) Paging
+$page = req('page', 1);
+
+require_once 'lib/SimplePager.php';
+$p = new SimplePager("SELECT 
     o.order_id, 
     u.username AS user_name, 
     o.order_date, 
@@ -18,11 +35,8 @@ FROM `order` o
 JOIN user u ON o.user_id = u.user_id
 JOIN order_detail od ON o.order_id = od.order_id
 JOIN product p ON od.product_id = p.product_id
-GROUP BY o.order_id;
-");
-$orderlist->execute();
-$orders = $orderlist->fetchAll(PDO::FETCH_ASSOC);
-
+GROUP BY $sort $dir", [], 10, $page);
+$orders = $p->result;
 
 
 
@@ -38,7 +52,7 @@ if (isset($_POST['mark_done'])) {
     $order_id = $_POST['order_id'];
 
 
-    $updateOrder = $_db->prepare("UPDATE `order` SET status_id = 3 WHERE order_id = ?");
+    $updateOrder = $_db->prepare("UPDATE `order` SET status_id = 3 , expired_time = NOW() WHERE order_id = ?");
     $updateOrder->execute([$order_id]);
 
 
@@ -55,30 +69,23 @@ if (isset($_POST['mark_done'])) {
 
 <table class="order-table">
     <tr>
-        <th>Order ID</th>
-        <th>User</th>
-        <th>Order Date</th>
-        <th>Total Amount (RM)</th>
-        <th>Completed Time</th>
-        <th>Order Details</th>
-        <th>Status</th>
-        <th>Action</th>
+    <?= table_headers($fields, $sort, $dir, "page=$page") ?>
     </tr>
     <?php foreach ($orders as $order) { ?>
     <tr>
-        <td><?= $order['order_id'] ?></td>
-        <td><?= $order['user_name'] ?></td>
-        <td><?= $order['order_date'] ?></td>
-        <td>RM<?= number_format($order['total_amount'], 2) ?></td>
-        <td><?= !empty($order['expired_time']) ? date('Y-m-d', strtotime($order['expired_time'])) : '' ?></td>
-        <td><?= $order['order_details'] ?></td>
+        <td><?= $order->order_id ?></td>
+        <td><?= $order->user_name ?></td>
+        <td><?= $order->order_date ?></td>
+        <td>RM<?= number_format($order->total_amount, 2) ?></td>
+        <td><?= !empty($order->expired_time) ? date('Y-m-d', strtotime($order->expired_time)) : '' ?></td>
+        <td><?= $order->order_details ?></td>
         <td>
             <?php 
-            if ($order['status_id'] == 1) {
+            if ($order->status_id == 1) {
                 echo '<span class="status-pending">Pending Payment</span>';
-            } elseif ($order['status_id'] == 2) {
+            } elseif ($order->status_id == 2) {
                 echo '<span class="status-delivery">Pending Delivery</span>';
-            } elseif ($order['status_id'] == 3) {
+            } elseif ($order->status_id == 3) {
                 echo '<span class="status-done">Delivered</span>';
             } else {
                 echo '<span class="status-cancelled">Cancelled</span>';
@@ -86,10 +93,10 @@ if (isset($_POST['mark_done'])) {
             ?>
         </td>   
         <td>
-            <?php if ($order['status_id'] == 2) { ?>
+            <?php if ($order->status_id == 2) { ?>
                 <form method="post">
-                    <input type="hidden" name="order_id" value="<?= $order['order_id'] ?>">
-                    <button type="submit" name="mark_done" class="action-button btn-delivered">Mark as Delivered</button>
+                    <input type="hidden" name="order_id" value="<?= $order->order_id ?>">
+                    <button type="submit" name="mark_done" class="action-button btn-delivered" onclick="return confirm('Are you sure you want to mark order_id =  <?= $order->order_id ?> as Delivered?');">Mark as Delivered</button>
                 </form>
             <?php } else { echo "N/A"; } ?>
         </td>
