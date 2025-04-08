@@ -6,14 +6,20 @@ $fields = [
     'user_id'       => 'User',
     'order_date'     => 'Order Date',
     'total_amount' => 'Total Amount',
-    'expired_time' => 'Completed Date',
-    'status_id' => 'status',
-    'status_id' => 'status',
+    'expired_time' => 'Completed Date'
     
 ];
 
+$fields2 = [
+    'status_id' => 'Status'
+
+];
+
+$allFields = $fields + $fields2;
+
 $sort = req('sort');
-key_exists($sort, $fields) || $sort = 'order_id';
+key_exists($sort, $allFields) || $sort = 'order_id';
+
 
 $dir = req('dir');
 in_array($dir, ['asc', 'desc']) || $dir = 'asc';
@@ -22,30 +28,33 @@ in_array($dir, ['asc', 'desc']) || $dir = 'asc';
 $page = req('page', 1);
 
 require_once 'lib/SimplePager.php';
-$p = new SimplePager("SELECT 
-    o.order_id, 
-    u.username AS user_name, 
-    o.order_date, 
-    o.total_amount, 
-    o.status_id, 
-    o.expired_time, 
-    o.cancel_desc,
-    GROUP_CONCAT(CONCAT(p.name, ' (x', od.quantity, ' RM', od.price_at_purchase, ')') SEPARATOR '<br>') AS order_details
-FROM `order` o
-JOIN user u ON o.user_id = u.user_id
-JOIN order_detail od ON o.order_id = od.order_id
-JOIN product p ON od.product_id = p.product_id
-GROUP BY $sort $dir", [], 10, $page);
+$p = new SimplePager(" SELECT 
+        o.order_id, 
+        u.username AS user_name, 
+        u.user_id,
+        o.order_date, 
+        o.total_amount, 
+        o.status_id, 
+        o.expired_time, 
+        o.cancel_desc,
+        GROUP_CONCAT(CONCAT(p.name, ' (x', od.quantity, ' RM', od.price_at_purchase, ')') SEPARATOR '<br>') AS order_details
+    FROM `order` o
+    JOIN user u ON o.user_id = u.user_id
+    JOIN order_detail od ON o.order_id = od.order_id
+    JOIN product p ON od.product_id = p.product_id
+    GROUP BY o.order_id
+    ORDER BY $sort $dir", [], 5, $page);
 $orders = $p->result;
 
 
 
 
 
-include '_head.php';
+include '_staffHead.php';
 ?>
 
 <link rel="stylesheet" href="/css/stafforder.css">
+<link rel="stylesheet" href="/css/app.css">
 </head>
 <?php
 if (isset($_POST['mark_done'])) {
@@ -70,6 +79,9 @@ if (isset($_POST['mark_done'])) {
 <table class="order-table">
     <tr>
     <?= table_headers($fields, $sort, $dir, "page=$page") ?>
+    <th>Order Details</th>
+    <?= table_headers($fields2, $sort, $dir, "page=$page") ?>
+    <th>Action</th>
     </tr>
     <?php foreach ($orders as $order) { ?>
     <tr>
@@ -110,5 +122,10 @@ if (isset($_POST['mark_done'])) {
 
 </body>
 
+
+
+
+
+<?= $p->html("sort=$sort&dir=$dir") ?>
 <?php
 include "_foot.php";

@@ -12,11 +12,12 @@ class SimplePager {
         global $_db;
 
         // Set [limit] and [page]
-        $this->limit = ctype_digit($limit) ? max($limit, 1) : 12;
+        $this->limit = ctype_digit($limit) ? max($limit, 1) : 10;
         $this->page = ctype_digit($page) ? max($page, 1) : 1;
 
         // Set [item count]
         $q = preg_replace('/SELECT.+FROM/', 'SELECT COUNT(*) FROM', $query, 1);
+        
         $stm = $_db->prepare($q);
         $stm->execute($params);
         $this->item_count = $stm->fetchColumn();

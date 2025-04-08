@@ -70,3 +70,21 @@
 .btn-delivered:hover {
     background-color: #218838;
 }
+
+.pager {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pager a {
+    margin: 0 5px;
+    padding: 5px 10px;
+    background: #f0f0f0;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.pager a.active {
+    background: #007bff;
+    color: white;
+}
