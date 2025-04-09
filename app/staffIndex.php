@@ -11,6 +11,7 @@ include '_staffHead.php';
 </head>
 <body>
 <a href="staffOrder.php">Order</a>
+<a href="staffMember.php">Member</a>
 
 
 <?php
