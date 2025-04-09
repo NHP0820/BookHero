@@ -28,7 +28,8 @@ in_array($dir, ['asc', 'desc']) || $dir = 'asc';
 $page = req('page', 1);
 
 require_once 'lib/SimplePager.php';
-$p = new SimplePager(" SELECT 
+$subQuery = "
+    SELECT 
         o.order_id, 
         u.username AS user_name, 
         u.user_id,
@@ -43,7 +44,11 @@ $p = new SimplePager(" SELECT
     JOIN order_detail od ON o.order_id = od.order_id
     JOIN product p ON od.product_id = p.product_id
     GROUP BY o.order_id
-    ORDER BY $sort $dir", [], 5, $page);
+";
+
+$query = "SELECT * FROM ($subQuery) AS orders_with_details ORDER BY $sort $dir";
+
+$p = new SimplePager($query, [], 5, $page);
 $orders = $p->result;
 
 
