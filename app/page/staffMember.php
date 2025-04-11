@@ -61,7 +61,7 @@ include '../_staffHead.php';
                 <td><?= $member->username ?></td>
                 <td><?= $member->email ?></td>
                 <td><?= $member->role ?></td>
-                <td><img src="/images/<?=$member->profile_image ?? "default.png"  ?>"> </td>
+                <td><img src="/images/<?=$member->profile_image ?? "default.png"   ?> " width="150px" height="150px" > </td>
                 
             </tr>
         <?php } ?>
