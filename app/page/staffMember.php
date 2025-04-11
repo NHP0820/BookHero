@@ -1,5 +1,5 @@
 <?php
-require '_base.php';
+require '../_base.php';
 //-----------------------------------------------------------------------------
 $fields = [
     'user_id'         => 'User_id',
@@ -21,7 +21,7 @@ in_array($dir, ['asc', 'desc']) || $dir = 'asc';
 // (2) Paging
 $page = req('page', 1);
 $name = req('name');
-require_once 'lib/SimplePager.php';
+require_once '../lib/SimplePager.php';
 
 
 $query = "SELECT * FROM user WHERE username LIKE ?  ORDER BY $sort $dir";
@@ -30,7 +30,7 @@ $p = new SimplePager($query, ["%$name%"], 5, $page);
 $members = $p->result;
 
 // ----------------------------------------------------------------------------
-include '_staffHead.php';
+include '../_staffHead.php';
 ?>
 
 <link rel="stylesheet" href="/css/staffmember.css">
@@ -77,4 +77,4 @@ include '_staffHead.php';
 
 
     <?php
-    include "_foot.php";
+    include "../_foot.php";
