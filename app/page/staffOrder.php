@@ -1,5 +1,5 @@
 <?php
-require '_base.php';
+require '../_base.php';
 
 $fields = [
     'order_id'         => 'Orderid',
@@ -27,7 +27,7 @@ in_array($dir, ['asc', 'desc']) || $dir = 'asc';
 // (2) Paging
 $page = req('page', 1);
 
-require_once 'lib/SimplePager.php';
+require_once '../lib/SimplePager.php';
 $subQuery = "
     SELECT 
         o.order_id, 
@@ -55,7 +55,7 @@ $orders = $p->result;
 
 
 
-include '_staffHead.php';
+include '../_staffHead.php';
 ?>
 
 <link rel="stylesheet" href="/css/stafforder.css">
@@ -133,4 +133,4 @@ if (isset($_POST['mark_done'])) {
 
 <?= $p->html("sort=$sort&dir=$dir") ?>
 <?php
-include "_foot.php";
+include "../_foot.php";

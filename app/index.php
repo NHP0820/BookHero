@@ -23,7 +23,7 @@ if (!empty($selectedCategories)) {
 }
 
 // Apply pagination
-$p = new SimplePager($sql, $params, 12, $page);
+$p = new SimplePager($sql, $params, 9, $page);
 $arr = $p->result;
 
 include '_head.php';

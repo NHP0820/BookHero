@@ -29,8 +29,8 @@ function sendEmail($recipient_email, $userName, $subject, $body) {
         $mail->Username = 'choongkf-am21@student.tarc.edu.my';
         $mail->Password = 'gikw uqaj debd edtc';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587; // Use 587 for STARTTLS or 465 for SMTPS
-
+        $mail->Port = 587; 
+        
         // Recipients
         $mail->setFrom('choongkf-am21@student.tarc.edu.my', 'Do not reply me'); // Sender
         $mail->addAddress($recipient_email, $userName); // Dynamic recipient

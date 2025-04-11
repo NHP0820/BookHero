@@ -345,7 +345,8 @@ form css
 .form select, 
 .form input[type="password"],
 .form input[type="number"],
-.form input[type="file"]{
+.form input[type="file"],
+.description{
     width: 100%;
     padding: 8px;
     margin-top: 5px;

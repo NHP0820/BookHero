@@ -132,12 +132,12 @@ if (is_post()) {
             // Update photo if new file uploaded
             if ($f) {
                 // Delete old photo
-                if ($productPhoto && file_exists("../photos/$productPhoto")) {
-                    unlink("../photos/$productPhoto");
+                if ($productPhoto && file_exists("../../images/$productPhoto")) {
+                    unlink("../../images/$productPhoto");
                 }
                 
                 // Save new photo
-                $productPhoto = save_photo($f, '../photos');
+                $productPhoto = save_photo($f, '../../images');
                 
                 // Update photo record
                 $stm = $_db->prepare('
@@ -206,7 +206,7 @@ include 'C:\xampp\htdocs\dashboard\bookHero\app\_staffHead.php';
     <?= err('author') ?>
 
     <label for="description">Description</label>
-    <textarea id="description" name="description" maxlength="500" rows="3"><?= encode($description ?? '') ?></textarea>
+    <textarea class="description" id="description" name="description" maxlength="500" rows="3"><?= encode($description ?? '') ?></textarea>
     <?= err('description') ?>
 
     <label for="price">Price (RM)</label>
@@ -232,7 +232,7 @@ include 'C:\xampp\htdocs\dashboard\bookHero\app\_staffHead.php';
     <label for="product_photo">Product Photo</label>
     <label class="upload" tabindex="0">
         <?= html_file('product_photo', 'image/*', 'hidden') ?>
-        <img src="../../images/<?= $productPhoto ?? 'photo.jpg' ?>">
+        <img src="../../images/<?= $productPhoto ?? 'default.png' ?>">
     </label>
     <?= err('product_photo') ?>
 
