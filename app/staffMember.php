@@ -12,7 +12,7 @@ $fields = [
 
 
 $sort = req('sort');
-key_exists($sort, $fields) || $sort = 'member_id';
+key_exists($sort, $fields) || $sort = 'user_id';
 
 
 $dir = req('dir');
@@ -20,14 +20,13 @@ in_array($dir, ['asc', 'desc']) || $dir = 'asc';
 
 // (2) Paging
 $page = req('page', 1);
-
+$name = req('name');
 require_once 'lib/SimplePager.php';
 
 
-$query = "SELECT * FROM user ORDER BY $sort $dir";
+$query = "SELECT * FROM user WHERE username LIKE ?  ORDER BY $sort $dir";
 
-
-$p = new SimplePager($query, [], 5, $page);
+$p = new SimplePager($query, ["%$name%"], 5, $page);
 $members = $p->result;
 
 // ----------------------------------------------------------------------------
@@ -46,6 +45,11 @@ include '_staffHead.php';
     <h1 style="text-align: center;">
         Admin member Management
     </h1>
+
+    <form class="search-form">
+    <?= html_search('name') ?>
+    <button>Search</button>
+</form>
 
     <table class="member-table">
         <tr>
