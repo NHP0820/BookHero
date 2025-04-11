@@ -38,7 +38,8 @@
         <div class="nav-links">
             <a href="../../staffIndex.php">Home Page</a>
             <a href="/page/productlist/index.php">Maintain Product</a>
-            <a href="/page/staffOrder.php">Order</a>            
+            <a href="/page/staffOrder.php">Order</a>     
+            <a href="/page/staffMember.php">Member</a>       
         </div>
     </nav>
 
