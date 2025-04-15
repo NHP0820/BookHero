@@ -65,73 +65,112 @@ if ($user_id) {
 include '../_head.php';
 ?>
 <link rel="stylesheet" href="/css/productProfile.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-function changeMainImage(src) {
-    document.getElementById("mainImage").src = src;
-}
+    $(document).ready(function() { //+ and - function
+        $(".qty-btn").on("click", function() {
+            var input = $("#quantity");
+            var current = parseInt(input.val());
+            var min = parseInt(input.attr("min"));
+            var max = parseInt(input.attr("max"));
+            var newVal = current;
 
-function toggleWishlist(button, productId) {
-    let isWishlisted = button.classList.contains("wishlisted");
-    let action = isWishlisted ? "remove" : "add";
+            if ($(this).hasClass("plus")) {
+                newVal = current + 1;
+            } else if ($(this).hasClass("minus")) {
+                newVal = current - 1;
+            }
 
-    const formData = new FormData();
-    formData.append("wishlist_action", action);
-    formData.append("product_id", productId);
+            // 限制范围
+            if (newVal < min) newVal = min;
+            if (newVal > max) newVal = max;
 
-    fetch("", {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === "success") {
-            button.classList.toggle("wishlisted");
-        } else {
-            alert(data.message || "Failed to update wishlist.");
-        }
+            input.val(newVal);
+        });
     });
-}
 
-document.addEventListener("DOMContentLoaded", function () {
-    const wishlistBtn = document.getElementById("wishlist-btn");
-    const productId = wishlistBtn.getAttribute("data-product-id");
-    wishlistBtn.addEventListener("click", function () {
-        toggleWishlist(this, productId);
+
+    function changeMainImage(src) {
+        document.getElementById("mainImage").src = src;
+    }
+
+    function toggleWishlist(button, productId) {
+        let isWishlisted = button.classList.contains("wishlisted");
+        let action = isWishlisted ? "remove" : "add";
+
+        const formData = new FormData();
+        formData.append("wishlist_action", action);
+        formData.append("product_id", productId);
+
+        fetch("", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    button.classList.toggle("wishlisted");
+                } else {
+                    alert(data.message || "Failed to update wishlist.");
+                }
+            });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const wishlistBtn = document.getElementById("wishlist-btn");
+        const productId = wishlistBtn.getAttribute("data-product-id");
+        wishlistBtn.addEventListener("click", function() {
+            toggleWishlist(this, productId);
+        });
     });
-});
 </script>
 </head>
+
 <body>
+    <div class="product-container">
+        <div class="left-section">
+            <div class="main-image-container">
+                <?php $mainPhoto = !empty($photos) ? $photos[0]->product_photo : 'default.png'; ?>
+                <img id="mainImage" src="/images/<?= htmlspecialchars($mainPhoto) ?>" alt="Main Product Image">
+            </div>
 
-<div class="product-container">
-    <div class="left-section">
-        <div class="main-image-container">
-            <?php $mainPhoto = !empty($photos) ? $photos[0]->product_photo : 'default.png'; ?>
-            <img id="mainImage" src="/images/<?= htmlspecialchars($mainPhoto) ?>" alt="Main Product Image">
+            <div class="thumbnail-container">
+                <?php foreach ($photos as $photo): ?>
+                    <img class="thumbnail" src="/images/<?= htmlspecialchars($photo->product_photo) ?>" alt="Thumbnail" onclick="changeMainImage(this.src)">
+                <?php endforeach; ?>
+            </div>
         </div>
 
-        <div class="thumbnail-container">
-            <?php foreach ($photos as $photo): ?>
-                <img class="thumbnail" src="/images/<?= htmlspecialchars($photo->product_photo) ?>" alt="Thumbnail" onclick="changeMainImage(this.src)">
-            <?php endforeach; ?>
+        <div class="right-section">
+            <h1>
+                <?= htmlspecialchars($product->name) ?>
+                <button id="wishlist-btn" class="wishlist-btn <?= $isWishlisted ? 'wishlisted' : '' ?>" data-product-id="<?= $product->product_id ?>">
+                    <i class="fa fa-heart"></i>
+                </button>
+            </h1>
+            <p class="price">RM<?= number_format($product->price, 2) ?></p>
+            <p><strong>Description:</strong> <?= htmlspecialchars($product->description) ?></p>
+            <p><strong>Stock Quantity:</strong> <?= htmlspecialchars($product->stock_quantity) ?></p>
+            <p><strong>Categories:</strong> <?= !empty($categories) ? implode(", ", $categories) : "Uncategorized" ?></p>
+
+
+
+            <form method="post" action="../page/tempcart/tempaddtocart.php" class="add-to-cart-form">
+                <input type="hidden" name="product_id" value="<?= $product->product_id ?>">
+                <div class="quantity-group">
+                    <label for="quantity">Quantity</label>
+                    <div class="quantity-controls">
+                        <button type="button" class="qty-btn minus">-</button>
+                        <input type="number" id="quantity" name="quantity" min="1" max="<?= $product->stock_quantity ?>" value="1">
+                        <button type="button" class="qty-btn plus">+</button>
+                    </div>
+                </div>
+                <button type="submit" class="add-to-cart-btn">Add to Cart</button>
+            </form>
+
+
+
         </div>
     </div>
 
-    <div class="right-section">
-        <h1>
-            <?= htmlspecialchars($product->name) ?>
-            <button id="wishlist-btn" class="wishlist-btn <?= $isWishlisted ? 'wishlisted' : '' ?>" data-product-id="<?= $product->product_id ?>">
-                <i class="fa fa-heart"></i>
-            </button>
-        </h1>
-        <p class="price">RM<?= number_format($product->price, 2) ?></p>
-        <p><strong>Description:</strong> <?= htmlspecialchars($product->description) ?></p>
-        <p><strong>Stock Quantity:</strong> <?= htmlspecialchars($product->stock_quantity) ?></p>
-        <p><strong>Categories:</strong> <?= !empty($categories) ? implode(", ", $categories) : "Uncategorized" ?></p>
-
-        <a href="../index.php" class="back-button">Back to Products</a>
-        <a href="../cart/shoppingCart.php" class="back-button">Add to Cart</a>
-    </div>
-</div>
-
-<?php include '../_foot.php'; ?>
+    <?php include '../_foot.php'; ?>

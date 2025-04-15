@@ -47,7 +47,7 @@ include '../_staffHead.php';
     </h1>
 
     <form class="search-form">
-    <?= html_search('name') ?>
+    <?= html_search('name','placeholder="Search by name..."') ?>
     <button>Search</button>
 </form>
 

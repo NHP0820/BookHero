@@ -1,0 +1,133 @@
+.cart-container {
+    max-width: 800px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cart-table th, .cart-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.cart-table img {
+    width: 80px;
+    height: auto;
+    vertical-align: middle;
+    margin-right: 10px;
+    border-radius: 6px;
+}
+
+.remove-btn {
+    background-color: red;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.total-row td {
+    font-size: 16px;
+}
+
+.cart-container {
+    max-width: 1000px; /* 变宽一点 */
+    margin: 30px auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    padding: 30px;
+    font-family: 'Segoe UI', sans-serif;
+}
+.cart-container h2 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 25px;
+}
+.cart-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cart-table th, .cart-table td {
+    padding: 15px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.cart-table th {
+    background-color: #f7f7f7;
+    font-weight: bold;
+}
+
+.cart-table td img {
+    width: 60px;
+    height: auto;
+    border-radius: 8px;
+    vertical-align: middle;
+}
+
+.cart-product {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.cart-product-name {
+    text-align: left;
+    padding-left: 10px;
+}
+
+.cart-row td {
+    border-bottom: 1px solid #ddd;
+}
+
+.remove-btn {
+    background-color: #ff3d3d;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.remove-btn:hover {
+    background-color: #cc0000;
+}
+
+.cart-total {
+    text-align: right;
+    padding: 20px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.cart-table thead th {
+    background: #f5f5f5;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+}
+
+.cart-table tbody td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}

@@ -39,6 +39,8 @@
     <nav>
         <div class="nav-links">
             <a href="/">Home Page</a>
+            <a href="/page/tempcart/tempcart.php">test cart (dont click)</a>
+            
             <?php if (isset($_SESSION['user'])): ?>
                 <a href="/page/cart/shoppingCart.php">Cart</a>
             <?php else: ?>
