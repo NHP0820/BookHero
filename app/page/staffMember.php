@@ -47,7 +47,7 @@ include '../_staffHead.php';
     </h1>
 
     <form class="search-form">
-    <?= html_search('name') ?>
+    <?= html_search('name','placeholder="Search by name..."') ?>
     <button>Search</button>
 </form>
 
@@ -61,7 +61,7 @@ include '../_staffHead.php';
                 <td><?= $member->username ?></td>
                 <td><?= $member->email ?></td>
                 <td><?= $member->role ?></td>
-                <td><img src="/images/<?=$member->profile_image ?? "default.png"  ?>"> </td>
+                <td><img src="/images/<?=$member->profile_image ?? "default.png"   ?> " width="150px" height="150px" > </td>
                 
             </tr>
         <?php } ?>
