@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['wishlist_action'])) {
     $product_id = intval($_POST['product_id']);
 
     if (!$user_id || !$product_id || !in_array($action, ['add', 'remove'])) {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
+        redirect("login.php");
         exit;
     }
 
@@ -19,13 +19,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['wishlist_action'])) {
         $stmt = $_db->prepare("INSERT IGNORE INTO wishlist (user_id, product_id) VALUES (?, ?)");
         $stmt->execute([$user_id, $product_id]);
         echo json_encode(['status' => 'success']);
-        temp('info', "Product added to wishlist.");
+        //temp('info', "Product added to wishlist.");
         exit;
     } elseif ($action === 'remove') {
         $stmt = $_db->prepare("DELETE FROM wishlist WHERE user_id = ? AND product_id = ?");
         $stmt->execute([$user_id, $product_id]);
         echo json_encode(['status' => 'success']);
-        temp('info', "Product removed from wishlist.");
+        //temp('info', "Product removed from wishlist.");
         exit;
     }
 }
