@@ -34,7 +34,34 @@ if (!$cart) {
     $itemStmt->execute([$cart_id]);
     $cart_items = $itemStmt->fetchAll(PDO::FETCH_OBJ);
 }
+
+// remove item from cart
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_product_id'])) {
+    $product_id = intval($_POST['remove_product_id']);
+
+   
+    $stmt = $_db->prepare("SELECT cart_id FROM cart WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    $cart = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($cart) {
+        $cart_id = $cart['cart_id'];
+
+        
+        $deleteStmt = $_db->prepare("DELETE FROM cart_item WHERE cart_id = ? AND product_id = ?");
+        $deleteStmt->execute([$cart_id, $product_id]);
+
+        temp('info', 'Item removed from cart.');
+    }
+
+    
+    redirect('tempcart.php');
+}
+
+
 ?>
+
+
 
 
 
@@ -71,7 +98,7 @@ if (!$cart) {
                         <td><?= number_format($item->price * $item->quantity, 2) ?></td>
                         <td>
                             <form method="post">
-                                <input type="hidden" name="remove_item_id" value="<?= $item->cart_item_id ?>">
+                                <input type="hidden" name="remove_product_id" value="<?= $item->cart_item_id ?>">
                                 <button type="submit" class="remove-btn">Remove</button>
                             </form>
                         </td>
