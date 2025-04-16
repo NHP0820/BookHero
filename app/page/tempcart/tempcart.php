@@ -22,7 +22,7 @@ if (!$cart) {
 
     // get cart items
     $itemStmt = $_db->prepare("
-        SELECT ci.cart_item_id, ci.quantity, p.name, p.price,
+        SELECT ci.cart_item_id, ci.quantity, p.name, p.price, ci.product_id,
             (SELECT pp.product_photo 
             FROM product_photo pp 
             WHERE pp.product_id = p.product_id 
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_product_id']))
                         <td><?= number_format($item->price * $item->quantity, 2) ?></td>
                         <td>
                             <form method="post">
-                                <input type="hidden" name="remove_product_id" value="<?= $item->cart_item_id ?>">
+                                <input type="hidden" name="remove_product_id" value="<?= $item->product_id ?>">
                                 <button type="submit" class="remove-btn">Remove</button>
                             </form>
                         </td>
