@@ -39,7 +39,7 @@ if (!$cart) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_product_id'])) {
     $product_id = intval($_POST['remove_product_id']);
 
-   
+
     $stmt = $_db->prepare("SELECT cart_id FROM cart WHERE user_id = ?");
     $stmt->execute([$user_id]);
     $cart = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -47,14 +47,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_product_id']))
     if ($cart) {
         $cart_id = $cart['cart_id'];
 
-        
+
         $deleteStmt = $_db->prepare("DELETE FROM cart_item WHERE cart_id = ? AND product_id = ?");
         $deleteStmt->execute([$cart_id, $product_id]);
 
         temp('info', 'Item removed from cart.');
     }
 
-    
+
     redirect('tempcart.php');
 }
 
@@ -108,6 +108,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_product_id']))
         </table>
 
         <div class="cart-total">Grand Total: RM <?= number_format($grandTotal, 2) ?></div>
+        <form method="post" action="checkout.php">
+            <button type="submit" name="checkout">Proceed to Checkout</button>
+        </form>
+
     </div>
 
     <?php include '../../_foot.php'; ?>
