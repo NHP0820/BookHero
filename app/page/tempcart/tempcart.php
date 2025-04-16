@@ -108,8 +108,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_product_id']))
         </table>
 
         <div class="cart-total">Grand Total: RM <?= number_format($grandTotal, 2) ?></div>
-        <form method="post" action="checkout.php">
-            <button type="submit" name="checkout">Proceed to Checkout</button>
+        <form method="post" action="checkout.php" class="checkout-form">
+            <button type="submit" name="checkout" class="checkout-btn">Create Order!</button>
         </form>
 
     </div>

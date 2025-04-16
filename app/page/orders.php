@@ -65,10 +65,10 @@ $totalUnpay = $result['total'];
         <button onclick="showTable('cancel', this)">Cancelled</button>
     </nav>
     <div id="pending-payment" class="order-table">
-       
+
         <?php
         $groupedOrders = [];
-        
+
         foreach ($orderlist as $orderItem) {
             $groupedOrders[$orderItem->order_id][] = $orderItem;
         }
@@ -77,14 +77,14 @@ $totalUnpay = $result['total'];
         <?php foreach ($groupedOrders as $orderId => $products): ?>
             <?php
             $totalAmount = array_sum(array_map(function ($product) {
-                return $product->price_at_purchase;
+                return $product->price_at_purchase * $product->quantity;
             }, $products));
             ?>
             <details class="order-dropdown">
                 <summary style="display: flex; justify-content: space-between;">
                     <span>Order No : <?= $orderId ?></span>
                     <span class="total-amount">Total: RM<?= $totalAmount ?></span>
-                    <a href="payment.php?order_id=<?= $orderId ?>" class="pay-button">Pay</a>
+                    <a href="/page/tempcart/payment.php?order_id=<?=$orderId ?>" class="pay-button">Pay</a>
                     <button onclick="showCancelModal(<?= $orderId ?>)" class="cancel-button" style="margin-left: 10px; color: red; background: none; border: none; cursor: pointer;">Cancel</button>
                 </summary>
                 <div class="order-products">
@@ -108,7 +108,7 @@ $totalUnpay = $result['total'];
                                             <p class="product-desc"><?= $orderItem->product_description ?></p>
                                         </td>
                                         <td>
-                                            <p class="quantity-cell">x <?= $orderItem->quantity ?></p>
+                                            <p class="quantity-cell"><?= $orderItem->price_at_purchase ?> x <?= $orderItem->quantity ?></p>
                                         </td>
                                         <?php
                                         $productList = $_db->prepare('SELECT price FROM product WHERE product_id = ?');
@@ -117,8 +117,8 @@ $totalUnpay = $result['total'];
                                         ?><td style="width: 30px;">
                                             <p class="price-container">
                                                 <span class="price">
-                                                    <del><?php if ($product['price'] != $orderItem->price_at_purchase) echo "RM " . $product['price']; ?></del>
-                                                    RM<?= $orderItem->price_at_purchase ?>
+                                                    <del></del>
+                                                    RM<?= $orderItem->price_at_purchase * $orderItem->quantity ?>
                                                 </span>
                                             </p>
                                         </td>
@@ -131,7 +131,7 @@ $totalUnpay = $result['total'];
                     <?php endforeach; ?>
                 </div>
 
-                <div class="order-total" style="border-top: 1px solid #ddd;">Total: RM<?= $totalAmount ?></div>
+                <div class="order-total" style="border-top: 1px solid #ddd;">Total: RM<?= $orderItem->total_amount ?></div>
             </details>
         <?php endforeach; ?>
     </div>
@@ -187,7 +187,7 @@ GROUP BY o.order_id, od.order_detail_id, p.product_id;");
         <?php foreach ($groupedOrders as $orderId => $products): ?>
             <?php
             $totalAmount = array_sum(array_map(function ($product) {
-                return $product->price_at_purchase;
+                return $product->price_at_purchase * $product->quantity;
             }, $products));
             ?>
             <details class="order-dropdown">
@@ -227,7 +227,7 @@ GROUP BY o.order_id, od.order_detail_id, p.product_id;");
                                         ?><td style="width: 30px;">
                                             <p class="price-container" style="width: 200px;">
                                                 <span class="price">
-                                                    <del><?php if ($product['price'] != $orderItem->price_at_purchase) echo "RM " . $product['price']; ?></del>
+
                                                     RM<?= $orderItem->price_at_purchase ?>
                                                 </span>
                                             </p>
@@ -297,7 +297,7 @@ GROUP BY o.order_id, od.order_detail_id, p.product_id;");
         <?php foreach ($groupedOrders as $orderId => $products): ?>
             <?php
             $totalAmount = array_sum(array_map(function ($product) {
-                return $product->price_at_purchase;
+                return $product->price_at_purchase * $product->quantity;
             }, $products));
             ?>
             <details class="order-dropdown">
@@ -337,7 +337,6 @@ GROUP BY o.order_id, od.order_detail_id, p.product_id;");
                                         ?><td style="width: 30px;">
                                             <p class="price-container">
                                                 <span class="price">
-                                                    <del><?php if ($product['price'] != $orderItem->price_at_purchase) echo "RM " . $product['price']; ?></del>
                                                     RM<?= $orderItem->price_at_purchase ?>
                                                 </span>
                                             </p>
@@ -373,6 +372,7 @@ GROUP BY o.order_id, od.order_detail_id, p.product_id;");
     o.status_id, 
     o.address_id, 
     o.cancel_desc,
+    o.expired_time,
     od.order_detail_id, 
     od.product_id, 
     p.name AS product_name,
@@ -408,16 +408,17 @@ GROUP BY o.order_id, od.order_detail_id, p.product_id;");
         <?php foreach ($groupedOrders as $orderId => $products): ?>
             <?php
             $totalAmount = array_sum(array_map(function ($product) {
-                return $product->price_at_purchase;
+                return $product->price_at_purchase * $product->quantity;
             }, $products));
             ?>
             <details class="order-dropdown">
                 <summary style=" justify-content: space-between;">
-             
+
                     <span>Order No : <?= $orderId ?></span>
                     <span style="padding-right: 30px;">Cancel Reason : <?= $orderItem->cancel_desc ?></span>
 
-                    <span class="total-amount">Canceled By <?= $groupedOrders[$orderId][0]->order_date ?></span>
+                    <span class="total-amount">Canceled By <?= !empty($groupedOrders[$orderId][0]->expired_time) ? date('Y-m-d', strtotime($groupedOrders[$orderId][0]->expired_time)) : '' ?>
+                    </span>
                     <span class="total-amount">Total: RM<?= $totalAmount ?></span>
 
                 </summary>
@@ -426,7 +427,7 @@ GROUP BY o.order_id, od.order_detail_id, p.product_id;");
                     $address = $_db->prepare('SELECT * FROM address WHERE address_id = ?');
                     $address->execute([$orderItem->address_id]);
                     $address_name = $address->fetch(PDO::FETCH_ASSOC);
-                    
+
                     ?>
                     <?= "Delivery To " . $address_name['street'] . ' ' . $address_name['city'] . ' ' . $address_name['state'] . ' ' . $address_name['zip_code'] . ' ' . $address_name['country'] . '     ' ?>
                     <?php foreach ($products as $orderItem): ?>
@@ -452,7 +453,6 @@ GROUP BY o.order_id, od.order_detail_id, p.product_id;");
                                         ?><td style="width: 30px;">
                                             <p class="price-container">
                                                 <span class="price">
-                                                    <del><?php if ($product['price'] != $orderItem->price_at_purchase) echo "RM " . $product['price']; ?></del>
                                                     RM<?= $orderItem->price_at_purchase ?>
                                                 </span>
                                             </p>
