@@ -36,7 +36,7 @@ if (!$items) {
 $total = 0;
 foreach ($items as $item) {
     if ($item->quantity > $item->stock_quantity) {
-        temp('info', "Not enought stock：{$item['name']}");
+        temp('info', "Not enought stock：{$item->name}  remainding only : $item->stock_quantity");
         redirect('/page/tempcart/tempcart.php');
         exit;
     }
