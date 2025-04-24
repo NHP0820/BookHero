@@ -59,9 +59,9 @@ try {
     // create order
     $order_insert = $_db->prepare("
         INSERT INTO `order` (user_id, order_date, total_amount, status_id, address_id, expired_time)
-        VALUES (?, CURDATE(), ?, 1, ?, DATE_ADD(NOW(), INTERVAL 6 HOUR))
+        VALUES (?, CURDATE(), ?, 1, 1, DATE_ADD(NOW(), INTERVAL 6 HOUR))
     ");
-    $order_insert->execute([$user_id, $total, $address_id]);
+    $order_insert->execute([$user_id, $total]);
     $order_id = $_db->lastInsertId();
 
     // insert order details

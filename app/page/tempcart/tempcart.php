@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_product_id']))
 <body>
     <div class="cart-container">
         <div class="cart-title">Your Shopping Cart</div>
-
+        
         <table class="cart-table">
             <thead>
                 <tr>

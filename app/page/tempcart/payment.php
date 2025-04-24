@@ -9,7 +9,10 @@ if (!$user_id && $user_role !== 'member') {
     exit;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1e3568b86fbd2336ed671aa54a0fdd9d9d4fd5ac
 $order_id = $_GET['order_id'] ?? 0;
 //$user_id = $_SESSION['user']['id'] ?? null;
 
