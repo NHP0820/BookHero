@@ -3,6 +3,13 @@ require '../_base.php';
 
 $product_id = isset($_GET['product_id']) ? intval($_GET['product_id']) : 0;
 $user_id = $_SESSION['user']['id'] ?? null;
+$user_role = $_SESSION['user']['role'] ?? null;
+if (!$user_id || $user_role !== 'member') {
+    temp('info', 'Please login first');
+    redirect("login.php");
+    redirect("login.php");
+    exit;
+}
 
 // Handle AJAX wishlist toggle
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['wishlist_action'])) {
