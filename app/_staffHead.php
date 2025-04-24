@@ -26,7 +26,7 @@
             <?php else: ?>
                 <button class="dropbtn"><?= htmlspecialchars($_SESSION['user']['username']) ?></button>
                 <div class="dropdown-content">
-                    <a href="#">Profile</a>
+                    <a href="/page/staffProfile.php">Profile</a>
                     <a href="/page/logout.php">Logout</a>
                 </div>
             <?php endif;?>

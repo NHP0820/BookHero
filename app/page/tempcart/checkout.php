@@ -11,6 +11,14 @@ if (!$user_id && $user_role !== 'member') {
 
 $user_id = $_SESSION['user']['id'];
 
+//
+$addressStmt = $_db->prepare("SELECT address_id FROM address WHERE user_id = ? LIMIT 1");
+$addressStmt->execute([$user_id]);
+$address = $addressStmt->fetch(PDO::FETCH_ASSOC);
+
+$address_id = $address['address_id'] ?? null;
+
+
 // get user cart id
 $cart = $_db->prepare("SELECT * FROM cart WHERE user_id = ?");
 $cart->execute([$user_id]);
@@ -78,6 +86,6 @@ try {
     redirect('/page/orders.php');
 } catch (Exception $e) {
     $_db->rollBack();
-    temp('info', 'Failed to create order');
+    temp('info', $e);
     redirect('/page/tempcart/tempcart.php');
 }

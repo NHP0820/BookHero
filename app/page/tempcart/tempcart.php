@@ -110,7 +110,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_product_id']))
         </table>
 
         <div class="cart-total">Grand Total: RM <?= number_format($grandTotal, 2) ?></div>
+
+        <?php
+            $cartStmt = $_db->prepare("SELECT * FROM cart WHERE user_id = ?");
+            $cartStmt->execute([$user_id]);
+            $cart = $cartStmt->fetch(PDO::FETCH_OBJ);
+
+
+
+        ?>
+        
         <form method="post" action="checkout.php" class="checkout-form">
+
             <button type="submit" name="checkout" class="checkout-btn">Create Order!</button>
         </form>
 
