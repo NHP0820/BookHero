@@ -1,9 +1,9 @@
 <?php
 require '../../_base.php';
 
-
 if (!isset($_SESSION['user']['id'])) {
-    die("Please login first。");
+    //die("Please login first。");
+    redirect('../login.php');
 }
 
 $user_id = $_SESSION['user']['id'];

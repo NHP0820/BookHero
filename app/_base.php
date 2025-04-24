@@ -251,3 +251,21 @@ function table_headers($fields, $sort, $dir, $href = '')
         echo "<th><a href='?sort=$k&dir=$d&$href' class='$c'>$v</a></th>";
     }
 }
+
+$_user = $_SESSION['user'] ?? null;
+
+function auth(...$roles) {
+    global $_user;
+    if ($_user) {
+        if ($roles) {
+            if (in_array($_user->role, $roles)) {
+                return; // OK
+            }
+        }
+        else {
+            return; // OK
+        }
+    }
+    
+    redirect('/login.php');
+}

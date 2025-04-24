@@ -11,21 +11,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['wishlist_action'])) {
     $product_id = intval($_POST['product_id']);
 
     if (!$user_id || !$product_id || !in_array($action, ['add', 'remove'])) {
-        redirect("login.php");
+        echo json_encode([
+            'status' => 'redirect',
+            'location' => 'login.php'
+        ]);
         exit;
     }
+    
 
     if ($action === 'add') {
         $stmt = $_db->prepare("INSERT IGNORE INTO wishlist (user_id, product_id) VALUES (?, ?)");
         $stmt->execute([$user_id, $product_id]);
+        temp('info', "Product added to wishlist.");
         echo json_encode(['status' => 'success']);
-        //temp('info', "Product added to wishlist.");
         exit;
     } elseif ($action === 'remove') {
         $stmt = $_db->prepare("DELETE FROM wishlist WHERE user_id = ? AND product_id = ?");
         $stmt->execute([$user_id, $product_id]);
+        temp('info', "Product removed from wishlist.");
         echo json_encode(['status' => 'success']);
-        //temp('info', "Product removed from wishlist.");
         exit;
     }
 }
@@ -81,7 +85,6 @@ include '../_head.php';
                 newVal = current - 1;
             }
 
-            // 限制范围
             if (newVal < min) newVal = min;
             if (newVal > max) newVal = max;
 
@@ -109,8 +112,11 @@ include '../_head.php';
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
+                    location.reload();
                     button.classList.toggle("wishlisted");
-                } else {
+                } else if (data.status === "redirect" && data.location) {
+                    window.location.href = data.location;
+                }else {
                     alert(data.message || "Failed to update wishlist.");
                 }
             });
@@ -150,7 +156,6 @@ include '../_head.php';
             </h1>
             <p class="price">RM<?= number_format($product->price, 2) ?></p>
             <p><strong>Description:</strong> <?= htmlspecialchars($product->description) ?></p>
-            <p><strong>Stock Quantity:</strong> <?= htmlspecialchars($product->stock_quantity) ?></p>
             <p><strong>Categories:</strong> <?= !empty($categories) ? implode(", ", $categories) : "Uncategorized" ?></p>
 
 
@@ -164,12 +169,10 @@ include '../_head.php';
                         <input type="number" id="quantity" name="quantity" min="1" max="<?= $product->stock_quantity ?>" value="1">
                         <button type="button" class="qty-btn plus">+</button>
                     </div>
+                    <p style="font-size: 10px;"><strong>Stock Left:</strong> <?= htmlspecialchars($product->stock_quantity) ?></p>
                 </div>
                 <button type="submit" class="add-to-cart-btn">Add to Cart</button>
             </form>
-
-
-
         </div>
     </div>
 
