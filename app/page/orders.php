@@ -1,12 +1,16 @@
 <?php
 require '../_base.php';
+
+$user_id = $_SESSION['user']['id'] ?? null;
+$user_role = $_SESSION['user']['role'] ?? null;
+if (!$user_id || $user_role !== 'member') {
+    temp('info', 'Please login first');
+    redirect("../login.php");
+    exit;
+}
 //-----------------------------------------------------------------------------
 
 $arr = $_db->query('SELECT * FROM product')->fetchAll();
-
-
-
-$user_id = $_SESSION['user']['id'];
 
 
 include '../_head.php';

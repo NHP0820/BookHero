@@ -3,16 +3,12 @@ require '../../_base.php';
 
 $user_id = $_SESSION['user']['id'] ?? null;
 $user_role = $_SESSION['user']['role'] ?? null;
-if (!$user_id && $user_role !== 'member') {
+if (!$user_id || $user_role !== 'member') {
     temp('info', 'Please login first');
     redirect("../login.php");
     exit;
 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 1e3568b86fbd2336ed671aa54a0fdd9d9d4fd5ac
 $order_id = $_GET['order_id'] ?? 0;
 //$user_id = $_SESSION['user']['id'] ?? null;
 
