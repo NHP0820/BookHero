@@ -9,7 +9,7 @@ if (!$user_id && $user_role !== 'member') {
     exit;
 }
 
-$user_id = $_SESSION['user']['id'];
+//$user_id = $_SESSION['user']['id'];
 $product_id = intval($_POST['product_id'] ?? 0);
 $quantity = intval($_POST['quantity'] ?? 1);
 
@@ -43,7 +43,7 @@ $totalDesired = $quantity + intval($existingQty);
 
 // check if the quantity is valid
 if ($totalDesired > $stock_quantity) {
-    temp('info', "Failed to add ，stock only remainding $stock_quantity ,（You had added $existingQty ）");
+    temp('info', "Failed to add ,stock only remainding $stock_quantity ,(You had added $existingQty )");
     redirect("../productProfile.php?product_id=$product_id");
 }
 
@@ -58,5 +58,5 @@ if ($existingQty !== false) {
     $stmt->execute([$cart_id, $product_id, $quantity]);
 }
 
-temp('info', "Added to your cart!！");
+temp('info', "Added to your cart!!");
 redirect("../productProfile.php?product_id=$product_id");
