@@ -59,7 +59,7 @@ if (isset($_SESSION['user'])) {
             <?php else: ?>
                 <button class="dropbtn"><?= htmlspecialchars($_SESSION['user']['username']) ?></button>
                 <div class="dropdown-content">
-                    <a href="#">Profile</a>
+                    <a href="/page/memberProfile.php">Profile</a>
                     <a href="/page/orders.php">Orders</a>
                     <a href="/page/wishlist.php">Whishlist (<?= $wishlistCount ?>)</a>
                     <a href="/page/logout.php">Logout</a>

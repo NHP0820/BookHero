@@ -44,7 +44,8 @@ if (is_post()) {
         $_SESSION['user'] = [
             'username' => $emails->username,
             'role' => $emails->role,
-            'id' => $emails->user_id
+            'id' => $emails->user_id,
+            'email' => $emails->email
         ];
 
         temp('info', "$emails->username, Welcome to BookHero");

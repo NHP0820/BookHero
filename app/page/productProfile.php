@@ -100,6 +100,53 @@ include '../_head.php';
         });
     });
 
+    function changeMainImage(src) {
+        document.getElementById("mainImage").src = src;
+    }
+    function toggleWishlist(button, productId) {
+        button.classList.toggle("wishlisted");
+        let isWishlisted = button.classList.contains("wishlisted");
+        localStorage.setItem("wishlist_" + productId, isWishlisted ? "true" : "false");
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+        let wishlistBtn = document.getElementById("wishlist-btn");
+        let productId = wishlistBtn.getAttribute("data-product-id");
+        if (localStorage.getItem("wishlist_" + productId) === "true") {
+            wishlistBtn.classList.add("wishlisted");
+        }
+        
+        $("#add-to-cart").click(function() {
+            const productId = $(this).data("id");
+            
+            $(this).prop("disabled", true).html('<i class="fa fa-spinner fa-spin"></i> Adding...');
+            
+            $.ajax({
+                url: "/add_to_cart.php",
+                type: "POST",
+                data: { 
+                    product_id: productId,
+                    quantity: 1 
+                },
+                dataType: "json",
+                success: function(response) {
+                    if (response.status === "success") {
+                        $(".cart-num").text(response.cart_count);
+                        
+                        alert("Item added to cart successfully!");
+                    } else {
+                        alert(response.message || "Failed to add item to cart.");
+                    }
+                },
+                error: function() {
+                    alert("An error occurred. Please try again.");
+                },
+                complete: function() {
+                    $("#add-to-cart").prop("disabled", false).html('<i class="fa fa-shopping-cart"></i> Add to Cart');
+                }
+            });
+        });
+    });
+
 
     function changeMainImage(src) {
         document.getElementById("mainImage").src = src;
