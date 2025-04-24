@@ -5,6 +5,7 @@ $user_id = $_SESSION['user']['id'] ?? null;
 $user_role = $_SESSION['user']['role'] ?? null;
 if (!$user_id || $user_role !== 'member') {
     temp('info', 'Please login first');
+    redirect("../logout.php");
     redirect("../login.php");
     exit;
 }
