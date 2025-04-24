@@ -1,9 +1,17 @@
 <?php
 require '../../_base.php';
 
+$user_id = $_SESSION['user']['id'] ?? null;
+$user_role = $_SESSION['user']['role'] ?? null;
+if (!$user_id && $user_role !== 'member') {
+    temp('info', 'Please login first');
+    redirect("../login.php");
+    exit;
+}
+
 
 $order_id = $_GET['order_id'] ?? 0;
-$user_id = $_SESSION['user']['id'] ?? null;
+//$user_id = $_SESSION['user']['id'] ?? null;
 
 // get orderid
 $stmt = $_db->prepare("SELECT * FROM `order` WHERE order_id = ? AND user_id = ? AND status_id = 1");

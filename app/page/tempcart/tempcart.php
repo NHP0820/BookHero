@@ -1,12 +1,14 @@
 <?php
 require '../../_base.php';
 
-if (!isset($_SESSION['user'])) {
-    redirect('/page/login.php');
+$user_id = $_SESSION['user']['id'] ?? null;
+$user_role = $_SESSION['user']['role'] ?? null;
+if (!$user_id && $user_role !== 'member') {
+    temp('info', 'Please login first');
+    redirect("../login.php");
     exit;
 }
 
-$user_id = $_SESSION['user']['id'];
 
 // get user cart id
 $cartStmt = $_db->prepare("SELECT * FROM cart WHERE user_id = ?");

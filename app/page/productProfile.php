@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['wishlist_action'])) {
             'status' => 'redirect',
             'location' => 'login.php'
         ]);
+        temp('info', "Please login first.");
         exit;
     }
     
@@ -174,6 +175,35 @@ include '../_head.php';
                 <button type="submit" class="add-to-cart-btn">Add to Cart</button>
             </form>
         </div>
+    </div>
+    <?php
+    // Get the next product ID
+    $nextStmt = $_db->prepare("SELECT product_id FROM product WHERE product_id > ? ORDER BY product_id ASC LIMIT 1");
+    $nextStmt->execute([$product_id]);
+    $nextProductId = $nextStmt->fetchColumn();
+    
+    // Get the previous product ID
+    $prevStmt = $_db->prepare("SELECT product_id FROM product WHERE product_id < ? ORDER BY product_id DESC LIMIT 1");
+    $prevStmt->execute([$product_id]);
+    $prevProductId = $prevStmt->fetchColumn();
+    ?>
+    
+    <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center;">
+        <?php if ($prevProductId): ?>
+            <a href="?product_id=<?= $prevProductId ?>" class="prev-product-btn" style="padding: 10px 20px; background: #2196F3; color: white; text-decoration: none; border-radius: 5px;">
+                &laquo;
+            </a>
+        <?php else: ?>
+            <span></span>
+        <?php endif; ?>
+
+        <?php if ($nextProductId): ?>
+            <a href="?product_id=<?= $nextProductId ?>" class="next-product-btn" style="padding: 10px 20px; background: #2196F3; color: white; text-decoration: none; border-radius: 5px;">
+                &raquo;
+            </a>
+        <?php else: ?>
+            <span></span>
+        <?php endif; ?>
     </div>
 
     <?php include '../_foot.php'; ?>

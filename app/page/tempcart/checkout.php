@@ -1,8 +1,11 @@
 <?php
 require '../../_base.php';
 
-if (!isset($_SESSION['user']['id'])) {
-    redirect('/page/login.php');
+$user_id = $_SESSION['user']['id'] ?? null;
+$user_role = $_SESSION['user']['role'] ?? null;
+if (!$user_id && $user_role !== 'member') {
+    temp('info', 'Please login first');
+    redirect("../login.php");
     exit;
 }
 

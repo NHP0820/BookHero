@@ -2,7 +2,9 @@
 require '../_base.php';
 
 $user_id = $_SESSION['user']['id'] ?? null;
-if (!$user_id) {
+$user_role = $_SESSION['user']['role'] ?? null;
+if (!$user_id && $user_role !== 'member') {
+    temp('info', 'Please login first');
     redirect("login.php");
     exit;
 }
@@ -40,29 +42,42 @@ include '../_head.php';
 <link rel="stylesheet" href="/css/wishlist.css">
 
 <div class="wishlist-container">
-    <h1>Your Wishlist</h1>
+    <h2 class="wishlist-title">Your Wishlist</h2>
 
     <?php if (empty($wishlistItems)): ?>
         <p style="text-align: center;">Your wishlist is empty.</p>
     <?php else: ?>
-        <div class="wishlist-grid">
-            <?php foreach ($wishlistItems as $item): ?>
-                <div class="wishlist-card">
-                    <a href="/page/productProfile.php?product_id=<?= $item->product_id ?>">
-                        <img src="/images/<?= htmlspecialchars($item->product_photo ?? 'default.png') ?>" alt="<?= htmlspecialchars($item->name) ?>">
-                    </a>
-                    <div class="wishlist-details">
-                        <h3><?= htmlspecialchars($item->name) ?></h3>
-                        <p class="price">RM<?= number_format($item->price, 2) ?></p>
-                        <form method="post" action="/page/wishlist.php?product_id=<?= $item->product_id ?>">
-                            <input type="hidden" name="wishlist_action" value="remove">
-                            <input type="hidden" name="product_id" value="<?= $item->product_id ?>">
-                            <button type="submit" class="remove-btn">Remove</button>
-                        </form>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
+        <table class="wishlist-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($wishlistItems as $item): ?>
+                    <tr class="wishlist-row">
+                        <td>
+                            <a href="/page/productProfile.php?product_id=<?= $item->product_id ?>">
+                                <img src="/images/<?= htmlspecialchars($item->product_photo ?? 'default.png') ?>" 
+                                     alt="<?= htmlspecialchars($item->name) ?>">
+                            </a>
+                        </td>
+                        <td class="wishlist-product-name"><?= htmlspecialchars($item->name) ?></td>
+                        <td class="wishlist-price">RM<?= number_format($item->price, 2) ?></td>
+                        <td>
+                            <form method="post" action="/page/wishlist.php">
+                                <input type="hidden" name="wishlist_action" value="remove">
+                                <input type="hidden" name="product_id" value="<?= $item->product_id ?>">
+                                <button type="submit" class="remove-btn">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     <?php endif; ?>
 </div>
 

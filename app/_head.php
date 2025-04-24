@@ -1,3 +1,36 @@
+<?php
+$cartCount = 0;
+$cart_id = null;
+
+if (isset($_SESSION['user'])) {
+    $user_id = $_SESSION['user']['id'];
+    
+    // Fetch cart_id associated with the user
+    $stmt = $_db->prepare("SELECT cart_id FROM cart WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    $cart_id = $stmt->fetchColumn();
+
+    // If a cart exists for the user, count the items in it
+    if ($cart_id) {
+        $stmt = $_db->prepare("SELECT COUNT(*) FROM cart_item WHERE cart_id = ?");
+        $stmt->execute([$cart_id]);
+        $cartCount = $stmt->fetchColumn();
+    }
+}
+
+$wishlistCount = 0;
+
+if (isset($_SESSION['user'])) {
+    $user_id = $_SESSION['user']['id'];
+    
+    // Fetch count of items in the wishlist for the user
+    $stmt = $_db->prepare("SELECT COUNT(*) FROM wishlist WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    $wishlistCount = $stmt->fetchColumn();
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,7 +61,7 @@
                 <div class="dropdown-content">
                     <a href="#">Profile</a>
                     <a href="/page/orders.php">Orders</a>
-                    <a href="/page/wishlist.php">Whishlist</a>
+                    <a href="/page/wishlist.php">Whishlist (<?= $wishlistCount ?>)</a>
                     <a href="/page/logout.php">Logout</a>
                 </div>
             <?php endif;?>
@@ -40,13 +73,11 @@
         <div class="nav-links">
             <a href="/">Home Page</a>
             
-            
             <?php if (isset($_SESSION['user'])): ?>
-                <a href="/page/cart/shoppingCart.php">Cart</a>
+                <a href="/page/cart/shoppingCart.php">Cart (<?= $cartCount ?>)</a>
             <?php else: ?>
                 <a href="/page/login.php">Cart</a>
             <?php endif; ?>
-            
         </div>
     </nav>
 <main>
