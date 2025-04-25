@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout'])) {
         $_db->prepare("DELETE FROM cart_item WHERE cart_id = ?")->execute([$cart->cart_id]);
 
         $_db->commit();
-        temp('success', 'Your order has been placed successfully!');
+        temp('info', 'Your order has been placed successfully!');
         header("Location: ../orders.php?order_id=" . $orderId);
         exit();
     } catch (Exception $e) {
