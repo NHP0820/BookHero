@@ -9,6 +9,14 @@ if (!$user || $user['role'] !== 'member') {
     exit;
 }
 
+$stmt = $_db->prepare('
+    SELECT address_id, street, city, state, zip_code, country, defaults
+    FROM address
+    WHERE user_id = ?
+');
+$stmt->execute([$user['id']]);
+$addresses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $errors = [];
@@ -49,6 +57,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_address_id'])) {
+    $addressId = $_POST['delete_address_id'];
+
+    $stmt = $_db->prepare("DELETE FROM address WHERE address_id = ? AND user_id = ?");
+    $stmt->execute([$addressId, $user['user_id']]);
+
+    temp('info', 'Address deleted successfully.');
+    redirect('memberProfile.php');
+    exit;
+}
+
+
 $_title = 'Member Profile';
 
 include '../_head.php';
@@ -70,6 +90,46 @@ include '../_head.php';
 
     <div class="profile-content">
         <h1>Member Profile</h1>
+        <div class="address-info">
+            <h2>Address Information</h2>
+            <a href="cart/addresses.php">Add New Address</a>
+            <?php if ($addresses): ?>
+                <table class="address-table">
+                    <thead>
+                        <tr>
+                            <th>Street</th>
+                            <th>City</th>
+                            <th>State</th>
+                            <th>Zip Code</th>
+                            <th>Country</th>
+                            <th>Default</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($addresses as $address): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($address['street']) ?></td>
+                                <td><?= htmlspecialchars($address['city']) ?></td>
+                                <td><?= htmlspecialchars($address['state']) ?></td>
+                                <td><?= htmlspecialchars($address['zip_code']) ?></td>
+                                <td><?= htmlspecialchars($address['country']) ?></td>
+                                <td><?= $address['defaults'] ? 'Yes' : 'No' ?></td>
+                                <td>
+                                    <a href="cart/addresses.php?edit=<?= $address['address_id'] ?>">Edit</a> |
+                                    <form method="post" style="display: inline;">
+                                        <input type="hidden" name="delete_address_id" value="<?= $address['address_id'] ?>">
+                                        <input type="submit" value="Delete" style="color: red;" onclick="return confirm('Are you sure you want to delete this address?')">
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <p>No address found for this user.</p>
+            <?php endif; ?>
+        </div>
 
         <form method="post" enctype="multipart/form-data" class="profile-form">
             <div class="form-section">

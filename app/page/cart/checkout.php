@@ -182,7 +182,7 @@ include '../../_head.php';
             <?= htmlspecialchars($address->city) ?>, <?= htmlspecialchars($address->state) ?> <?= htmlspecialchars($address->zip_code) ?><br>
             <?= htmlspecialchars($address->country) ?>
         </div>
-        <a href="addresses.php?id=<?= $address->address_id ?>" class="edit-button">Edit Address</a>
+        <a href="addresses.php?edit=<?= $address->address_id ?>" class="edit-button">Edit Address</a>
     <?php else: ?>
         <p>You don't have any saved address. Please add an address to continue.</p>
         <a href="addresses.php" class="back-button">Add Address</a>

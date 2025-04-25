@@ -105,3 +105,27 @@
 .update-btn:hover {
     background: #0292d4;
 }
+
+.address-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.address-table th, .address-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.address-table th {
+    background-color: #f2f2f2;
+}
+
+.address-table td a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.address-table td a:hover {
+    text-decoration: underline;
+}
