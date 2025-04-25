@@ -89,7 +89,10 @@ $totalUnpay = $result['total'];
                 <summary style="display: flex; justify-content: space-between;">
                     <span>Order No : <?= $orderId ?></span>
                     <span class="total-amount">Total: RM<?= $totalAmount ?></span>
-                    <a href="/page/tempcart/payment.php?order_id=<?=$orderId ?>" class="pay-button">Pay</a>
+                    <form action="../page/cart/checkout.php" method="post" style="display:inline;">
+                        <input type="hidden" name="order_id" value="<?= $orderId ?>">
+                        <button type="submit" class="pay-button">Pay</button>
+                    </form>
                     <button onclick="showCancelModal(<?= $orderId ?>)" class="cancel-button" style="margin-left: 10px; color: red; background: none; border: none; cursor: pointer;">Cancel</button>
                 </summary>
                 <div class="order-products">

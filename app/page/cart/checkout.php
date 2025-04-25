@@ -1,107 +1,74 @@
 <?php
 require '../../_base.php';
+include '../../_head.php';
 
 if (!isset($_SESSION['user'])) {
-    header("Location: ../login.php");
+    header("Location: ../../login.php");
     exit();
 }
 
 $userId = $_SESSION['user']['id'];
+$orderId = $_POST['order_id'] ?? null;
+$payment_method = $_POST['payment_method'] ?? null;
 $errors = [];
 
+if (!$orderId) {
+    header("Location: ../orders.php");
+    exit();
+}
+
+// check the order is valid and not already paid
+$orderStmt = $_db->prepare("SELECT * FROM `order` WHERE order_id = ? AND user_id = ? AND status_id = 1");
+$orderStmt->execute([$orderId, $userId]);
+$order = $orderStmt->fetch(PDO::FETCH_OBJ);
+
+if (!$order) {
+    $errors[] = "Invalid order or already paid.";
+}
+
+// check order
+$orderItems = [];
+if ($order) {
+    $orderItemsStmt = $_db->prepare("
+        SELECT od.*, p.name, p.author, p.price,
+               (SELECT product_photo FROM product_photo 
+                WHERE product_id = od.product_id 
+                ORDER BY product_photo_id ASC 
+                LIMIT 1) AS product_photo
+        FROM order_detail od
+        JOIN product p ON od.product_id = p.product_id
+        WHERE od.order_id = ?
+    ");
+    $orderItemsStmt->execute([$orderId]);
+    $orderItems = $orderItemsStmt->fetchAll(PDO::FETCH_OBJ);
+}
+
+// address
 $addressStmt = $_db->prepare("SELECT * FROM address WHERE user_id = ? LIMIT 1");
 $addressStmt->execute([$userId]);
 $address = $addressStmt->fetch(PDO::FETCH_OBJ);
 
-if (!$address) {
-    $errors[] = "You need to add an address before checkout";
-}
+// payment
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $payment_method && empty($errors)) {
+    try {
+        $_db->beginTransaction();
 
-$stmt = $_db->prepare("SELECT * FROM cart WHERE user_id = ?");
-$stmt->execute([$userId]);
-$cart = $stmt->fetch(PDO::FETCH_OBJ);
+        $payStmt = $_db->prepare("INSERT INTO payment (order_id, amount, payment_method, payment_date) VALUES (?, ?, ?, NOW())");
+        $payStmt->execute([$order->order_id, $order->total_amount, $payment_method]);
 
-if (!$cart) {
-    header("Location: shoppingCart.php");
-    exit();
-}
+        $updateOrder = $_db->prepare("UPDATE `order` SET status_id = 2 WHERE order_id = ?");
+        $updateOrder->execute([$orderId]);
 
-$cartStmt = $_db->prepare(
-    "SELECT ci.*, p.*, pp.product_photo
-     FROM cart_item ci
-     INNER JOIN product p ON ci.product_id = p.product_id
-     LEFT JOIN product_photo pp ON pp.product_photo_id = (
-         SELECT product_photo_id
-         FROM product_photo
-         WHERE product_id = p.product_id
-         ORDER BY product_photo_id ASC  
-         LIMIT 1
-     )
-     WHERE ci.cart_id = ?"
-);
-$cartStmt->execute([$cart->cart_id]);
-$cartItems = $cartStmt->fetchAll(PDO::FETCH_OBJ);
+        $_db->commit();
 
-if (count($cartItems) === 0) {
-    header("Location: shoppingCart.php");
-    exit();
-}
-
-$subtotal = 0;
-foreach ($cartItems as $item) {
-    $subtotal += $item->price * $item->quantity;
-}
-$shipping = 4.99;
-$total = $subtotal + $shipping;
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $validOrder = true;
-    $invalidProducts = [];
-    
-    foreach ($cartItems as $item) {
-        if ($item->quantity > $item->stock_quantity) {
-            $validOrder = false;
-            $invalidProducts[] = $item->name;
-        }
-    }
-    
-    if (!$validOrder) {
-        $errors[] = "The following products don't have enough stock: " . implode(", ", $invalidProducts);
-    }
-    
-    if (empty($errors)) {
-        try {
-            $_db->beginTransaction();
-            
-            $orderStmt = $_db->prepare("INSERT INTO `order` (user_id, order_date, total_amount, status_id, address_id, expired_time) VALUES (?, CURDATE(), ?, 1, ?, DATE_ADD(NOW(), INTERVAL 6 HOUR))");
-            $orderStmt->execute([$userId, $total, $address->address_id]);
-            $orderId = $_db->lastInsertId();
-            
-            foreach ($cartItems as $item) {
-                $orderDetailStmt = $_db->prepare("INSERT INTO order_detail (order_id, product_id, quantity, price_at_purchase) VALUES (?, ?, ?, ?)");
-                $orderDetailStmt->execute([$orderId, $item->product_id, $item->quantity, $item->price]);
-                
-                $updateStockStmt = $_db->prepare("UPDATE product SET stock_quantity = stock_quantity - ? WHERE product_id = ?");
-                $updateStockStmt->execute([$item->quantity, $item->product_id]);
-            }
-            
-            $emptyCartStmt = $_db->prepare("DELETE FROM cart_item WHERE cart_id = ?");
-            $emptyCartStmt->execute([$cart->cart_id]);
-            
-            $_db->commit();
-            
-            header("Location: ../orders.php?order_id=" . $orderId);
-            exit();
-            
-        } catch (Exception $e) {
-            $_db->rollBack();
-            $errors[] = "An error occurred while processing your order: " . $e->getMessage();
-        }
+        temp('info', 'Payment successful!');
+        header("Location: ../orders.php?order_id=" . $orderId);
+        exit();
+    } catch (Exception $e) {
+        $_db->rollBack();
+        $errors[] = "Payment failed: " . $e->getMessage();
     }
 }
-
-include '../../_head.php';
 ?>
 
 <link rel="stylesheet" href="../../css/checkout.css">
@@ -110,110 +77,94 @@ include '../../_head.php';
 </head>
 
 <body>
-    <div class="checkout-container">
-        <h1 class="page-title">Checkout</h1>
+<div class="checkout-container">
+    <h1 class="page-title">Order Payment</h1>
 
-        <?php if (!empty($errors)): ?>
-            <div class="error-message">
-                <ul style="margin: 0; padding-left: 20px;">
-                    <?php foreach ($errors as $error): ?>
-                        <li><?= htmlspecialchars($error) ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
+    <?php if (!empty($errors)): ?>
+        <div class="error-message">
+            <ul>
+                <?php foreach ($errors as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
 
+    <?php if ($order): ?>
         <form method="post" action="">
+            <input type="hidden" name="order_id" value="<?= $orderId ?>">
+
             <div class="checkout-section">
-                <h2 class="section-title">Order Summary</h2>
+                <h2 class="section-title">Products in Order</h2>
                 <table class="order-summary">
                     <thead>
                         <tr>
                             <th>Product</th>
                             <th>Price</th>
-                            <th>Quantity</th>
+                            <th>Qty</th>
                             <th>Total</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($cartItems as $item): 
+                        <?php foreach ($orderItems as $item): 
                             $itemTotal = $item->price * $item->quantity;
                         ?>
-                            <tr>
-                                <td>
-                                    <div class="book-info">
-                                        <img src="../../images/<?= htmlspecialchars($item->product_photo) ?>" class="book-image" alt="<?= htmlspecialchars($item->name) ?>">
-                                        <div class="book-details">
-                                            <h3><?= htmlspecialchars($item->name) ?></h3>
-                                            <p><?= htmlspecialchars($item->author) ?></p>
-                                        </div>
+                        <tr>
+                            <td>
+                                <div class="book-info">
+                                    <img src="../../images/<?= htmlspecialchars($item->product_photo) ?>" class="book-image" alt="<?= htmlspecialchars($item->name) ?>">
+                                    <div class="book-details">
+                                        <strong><?= htmlspecialchars($item->name) ?></strong><br>
+                                        <small><?= htmlspecialchars($item->author) ?></small>
                                     </div>
-                                </td>
-                                <td class="price">RM<?= number_format($item->price, 2) ?></td>
-                                <td><?= $item->quantity ?></td>
-                                <td class="price">RM<?= number_format($itemTotal, 2) ?></td>
-                            </tr>
+                                </div>
+                            </td>
+                            <td>RM<?= number_format($item->price, 2) ?></td>
+                            <td><?= $item->quantity ?></td>
+                            <td>RM<?= number_format($itemTotal, 2) ?></td>
+                        </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+            </div>
 
+            <div class="checkout-section">
+                <h2 class="section-title">Total Amount</h2>
                 <div class="summary-totals">
-                    <div class="summary-row">
-                        <span>Subtotal</span>
-                        <span>RM<?= number_format($subtotal, 2) ?></span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Shipping</span>
-                        <span>RM<?= number_format($shipping, 2) ?></span>
-                    </div>
                     <div class="summary-row total">
                         <span>Total</span>
-                        <span>RM<?= number_format($total, 2) ?></span>
+                        <span>RM<?= number_format($order->total_amount, 2) ?></span>
                     </div>
                 </div>
             </div>
 
             <div class="checkout-section">
-    <h2 class="section-title">Delivery Address</h2>
-    <?php if ($address): ?>
-        <div class="address-box">
-            <strong><?= htmlspecialchars($address->address_name ?? 'Default Address') ?></strong><br>
-            <?= htmlspecialchars($address->street) ?><br>
-            <?= htmlspecialchars($address->city) ?>, <?= htmlspecialchars($address->state) ?> <?= htmlspecialchars($address->zip_code) ?><br>
-            <?= htmlspecialchars($address->country) ?>
-        </div>
-        <a href="addresses.php?id=<?= $address->address_id ?>" class="edit-button">Edit Address</a>
-    <?php else: ?>
-        <p>You don't have any saved address. Please add an address to continue.</p>
-        <a href="addresses.php" class="back-button">Add Address</a>
-    <?php endif; ?>
-        </div>
-
-            <div class="checkout-section">
-                <h2 class="section-title">Payment Method</h2>
-                <div class="payment-options">
-                    <label class="payment-option">
-                        <input type="radio" name="payment_method" value="credit_card" checked>
-                        Credit Card / Debit Card
-                    </label>
-                    <label class="payment-option">
-                        <input type="radio" name="payment_method" value="online_banking">
-                        Online Banking
-                    </label>
-                    <label class="payment-option">
-                        <input type="radio" name="payment_method" value="e_wallet">
-                        E-Wallet (Touch 'n Go, GrabPay, etc.)
-                    </label>
-                </div>
-                <p><small>* Payment details will be collected on the next page</small></p>
+                <h2 class="section-title">Delivery Address</h2>
+                <?php if ($address): ?>
+                    <div class="address-box">
+                        <strong><?= htmlspecialchars($address->address_name ?? 'Default Address') ?></strong><br>
+                        <?= htmlspecialchars($address->street) ?><br>
+                        <?= htmlspecialchars($address->city) ?>, <?= htmlspecialchars($address->state) ?> <?= htmlspecialchars($address->zip_code) ?><br>
+                        <?= htmlspecialchars($address->country) ?>
+                    </div>
+                <?php else: ?>
+                    <p>No address found.</p>
+                <?php endif; ?>
             </div>
 
-            <?php if ($address): ?>
-                <button type="submit" class="place-order-button">Place Order</button>
-            <?php endif; ?>
+            <div class="checkout-section">
+                <h2 class="section-title">Select Payment Method</h2>
+                <div class="payment-options">
+                    <label><input type="radio" name="payment_method" value="Credit Card" checked> Credit Card</label><br>
+                    <label><input type="radio" name="payment_method" value="Online Banking"> Online Banking</label><br>
+                    <label><input type="radio" name="payment_method" value="E-Wallet"> E-Wallet</label>
+                </div>
+            </div>
+
+            <button type="submit" class="place-order-button">Confirm Payment</button>
         </form>
-        
-        <a href="shoppingCart.php" class="back-button">Back to Cart</a>
-    </div>
+        <a href="../orders.php" class="back-button">Back to Orders</a>
+    <?php endif; ?>
+</div>
 </body>
 </html>
