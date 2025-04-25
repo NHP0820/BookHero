@@ -87,7 +87,6 @@ include 'C:\xampp\htdocs\dashboard\bookHero\app\_staffHead.php';
 
 <p>
     <button class="btnp" data-get="../productlist/insert.php">Insert Product</button>
-    <button class="btnp" class="" data-get="/page/category/category.php">Manage Categories</button>
     <?php if ($category): ?>
         <button data-get="../product/">View All Products</button>
     <?php endif; ?>

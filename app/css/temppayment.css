@@ -1,94 +1,76 @@
+
 .payment-container {
-    max-width: 500px;
-    margin: 40px auto;
-    padding: 30px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background-color: #fdfdfd;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
-}
-
-.payment-container h2 {
-    margin-bottom: 20px;
-}
-
-.payment-container p {
-    margin: 10px 0;
-}
-
-.confirm-btn {
-    padding: 10px 20px;
-    background-color: #28a745;
-    border: none;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background 0.2s ease;
-}
-
-.confirm-btn:hover {
-    background-color: #218838;
-}
-.payment-container {
-    max-width: 600px;
+    max-width: 720px; 
     margin: 60px auto;
-    padding: 30px;
+    padding: 40px 50px;  
     background: #fdfdfd;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
     font-family: 'Segoe UI', sans-serif;
 }
 
-.payment-container h2 {
+
+
+.payment-container h1 {
     text-align: center;
     margin-bottom: 30px;
+    font-size: 28px;
     color: #333;
 }
 
-.order-summary p {
+
+.payment-summary p {
     font-size: 16px;
     margin: 10px 0;
 }
 
-.payment-form label {
+
+.payment-method label {
     display: block;
     margin: 20px 0 8px;
     font-weight: bold;
+    font-size: 16px;
+    color: #444;
 }
 
-.payment-form select {
+.payment-method select {
     width: 100%;
     padding: 10px;
     border-radius: 6px;
     border: 1px solid #ccc;
     font-size: 15px;
+    background-color: #fff;
 }
 
-.pay-button {
+
+.confirm-payment-button {
     margin-top: 30px;
     width: 100%;
-    background-color: #007bff;
+    background-color: #03A9F4; 
     color: white;
     padding: 12px 18px;
     font-size: 16px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-.pay-button:hover {
-    background-color: #0056b3;
+.confirm-payment-button:hover {
+    background-color: #0288D1; 
 }
 
-.back-link {
-    display: inline-block;
-    margin-top: 20px;
-    text-align: center;
-    color: #007bff;
-    text-decoration: none;
+
+.back-button {
     display: block;
+    margin: 20px auto 0;
+    text-align: center;
+    color: #03A9F4;
+    text-decoration: none;
+    font-size: 15px;
 }
-.back-link:hover {
+
+.back-button:hover {
     text-decoration: underline;
+    color: #0288D1;
 }

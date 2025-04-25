@@ -1,72 +1,75 @@
 <?php
 require '../../_base.php';
-
-$user_id = $_SESSION['user']['id'] ?? null;
-$user_role = $_SESSION['user']['role'] ?? null;
-if (!$user_id || $user_role !== 'member') {
-    temp('info', 'Please login first');
-    redirect("../logout.php");
-    redirect("../login.php");
-    exit;
-}
-
-
-$order_id = $_GET['order_id'] ?? 0;
-//$user_id = $_SESSION['user']['id'] ?? null;
-
-// get orderid
-$stmt = $_db->prepare("SELECT * FROM `order` WHERE order_id = ? AND user_id = ? AND status_id = 1");
-$stmt->execute([$order_id, $user_id]);
-$order = $stmt->fetch(PDO::FETCH_OBJ);
-
-if (!$order) {
-    temp('info', 'Invalid or already paid order.');
-    redirect('/page/orders.php');
-}
-
-// if pressed confirm payment button
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $method = $_POST['payment_method'] ?? 'Manual Payment';
-
-    // insert payment record
-    $pay = $_db->prepare("INSERT INTO payment (order_id, amount, payment_method, payment_date) VALUES (?, ?, ?, NOW())");
-    $pay->execute([$order->order_id, $order->total_amount, $method]);
-
-    // update order status to 2 (paid)
-    $update = $_db->prepare("UPDATE `order` SET status_id = 2 WHERE order_id = ?");
-    $update->execute([$order->order_id]);
-
-    temp('info', 'Payment successful. Thank you!');
-    redirect('/page/orders.php');
-}
-
-$_title = 'BookHero | Payment';
 include '../../_head.php';
+
+if (!isset($_SESSION['user'])) {
+    header("Location: ../../login.php");
+    exit();
+}
+
+$userId = $_SESSION['user']['id'];
+
+$stmt = $_db->prepare("SELECT * FROM cart WHERE user_id = ?");
+$stmt->execute([$userId]);
+$cart = $stmt->fetch(PDO::FETCH_OBJ);
+
+if (!$cart) {
+    header("Location: shoppingCart.php");
+    exit();
+}
+
+$cartStmt = $_db->prepare("
+    SELECT ci.*, p.*
+    FROM cart_item ci
+    INNER JOIN product p ON ci.product_id = p.product_id
+    WHERE ci.cart_id = ?
+");
+$cartStmt->execute([$cart->cart_id]);
+$cartItems = $cartStmt->fetchAll(PDO::FETCH_OBJ);
+
+if (count($cartItems) === 0) {
+    header("Location: shoppingCart.php");
+    exit();
+}
+
+$subtotal = 0;
+foreach ($cartItems as $item) {
+    $subtotal += $item->price * $item->quantity;
+}
+$shipping = 4.99;
+$total = $subtotal + $shipping;
 ?>
-<link rel="stylesheet" href="/css/temppayment.css">
+
+<link rel="stylesheet" href="../../css/temppayment.css">
+
+<head>
+    <title>BookHero - Payment</title>
 </head>
+
 <body>
+    <div class="payment-container">
+        <h1 class="page-title">Create Order</h1>
 
-<div class="payment-container">
-    <h2>Payment for Order #<?= $order->order_id ?></h2>
+        <div class="payment-summary">
+            <p><strong>Subtotal:</strong> RM<?= number_format($subtotal, 2) ?></p>
+            <p><strong>Shipping:</strong> RM<?= number_format($shipping, 2) ?></p>
+            <p><strong>Total Amount:</strong> RM<?= number_format($total, 2) ?></p>
+        </div>
 
-    <div class="order-summary">
-        <p><strong>Amount Due:</strong> RM<?= number_format($order->total_amount, 2) ?></p>
-        <p><strong>Order Date:</strong> <?= $order->order_date ?></p>
+        <form method="post" action="checkout.php">
+            <div class="payment-method">
+                <label>Select Payment Method</label>
+                <select name="payment_method" required>
+                    <option value="Online Banking">Online Banking</option>
+                    <option value="Credit/Debit Card">Credit/Debit Card</option>
+                    <option value="E-Wallet">E-Wallet</option>
+                </select>
+            </div>
+
+            <button type="submit" class="confirm-payment-button">Confirm Payment</button>
+        </form>
+
+        <a href="shoppingCart.php" class="back-button">Back to Cart</a>
     </div>
-
-    <form method="post" class="payment-form">
-        <label for="payment_method">Payment Method</label>
-        <select name="payment_method" id="payment_method">
-            <option value="Online Banking">Online Banking</option>
-            <option value="Credit/Debit Card">Credit/Debit Card</option>
-            <option value="E-Wallet">E-Wallet</option>
-        </select>
-
-        <button type="submit" class="pay-button">Confirm Payment</button>
-    </form>
-
-    <a href="../orders.php" class="back-link">← Back to Orders</a>
-</div>
-
-<?php include '../../_foot.php'; ?>
+</body>
+</html>
