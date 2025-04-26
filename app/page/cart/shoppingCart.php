@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout'])) {
         $_db->beginTransaction();
 
        
-        $orderStmt = $_db->prepare("INSERT INTO `order` (user_id, order_date, total_amount, status_id, address_id, expired_time) VALUES (?, NOW(), ?, 2, ?, DATE_ADD(NOW(), INTERVAL 6 HOUR))");
+        $orderStmt = $_db->prepare("INSERT INTO `order` (user_id, order_date, total_amount, status_id, address_id, expired_time) VALUES (?, NOW(), ?, 1, ?, DATE_ADD(NOW(), INTERVAL 6 HOUR))");
         $orderStmt->execute([$userId, $total, $address->address_id]);
         $orderId = $_db->lastInsertId();
 
