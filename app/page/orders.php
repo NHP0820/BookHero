@@ -200,7 +200,7 @@ $totalUnpay = $result['total'];
                 <div class="order-products">
                     <?php
                     $address = $_db->prepare('SELECT * FROM address WHERE address_id = ?');
-                    $address->execute([$orderItem->address_id]);
+                    $address->execute([$products[0]->address_id]);
                     $address_name = $address->fetch(PDO::FETCH_ASSOC);
 
                     ?>
@@ -310,7 +310,7 @@ GROUP BY o.order_id, od.order_detail_id, p.product_id;");
                 <div class="order-products">
                     <?php
                     $address = $_db->prepare('SELECT * FROM address WHERE address_id = ?');
-                    $address->execute([$orderItem->address_id]);
+                    $address->execute([$products[0]->address_id]);
                     $address_name = $address->fetch(PDO::FETCH_ASSOC);
 
                     ?>
@@ -426,7 +426,7 @@ GROUP BY o.order_id, od.order_detail_id, p.product_id;");
                 <div class="order-products">
                     <?php
                     $address = $_db->prepare('SELECT * FROM address WHERE address_id = ?');
-                    $address->execute([$orderItem->address_id]);
+                    $address->execute([$products[0]->address_id]);
                     $address_name = $address->fetch(PDO::FETCH_ASSOC);
 
                     ?>
