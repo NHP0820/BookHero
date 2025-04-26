@@ -51,6 +51,10 @@ $addressStmt = $_db->prepare("SELECT * FROM address WHERE user_id = ?");
 $addressStmt->execute([$userId]);
 $addresses = $addressStmt->fetchAll(PDO::FETCH_OBJ);
 
+$addressStmt = $_db->prepare("SELECT * FROM address WHERE user_id = ? AND defaults = 1 LIMIT 1");
+$addressStmt->execute([$userId]);
+$address = $addressStmt->fetch(PDO::FETCH_OBJ);
+
 // payment
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $payment_method && empty($errors)) {
     try {
@@ -61,6 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $payment_method && empty($errors)) 
 
         $updateOrder = $_db->prepare("UPDATE `order` SET status_id = 2 WHERE order_id = ?");
         $updateOrder->execute([$orderId]);
+
+        $updateAddress = $_db->prepare('UPDATE `order` SET address_id = ? WHERE order_id = ?');
+        $updateAddress->execute([$address->address_id, $orderId]);
 
         $_db->commit();
 
