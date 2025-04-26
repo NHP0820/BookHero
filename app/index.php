@@ -6,7 +6,7 @@ checkRememberMe($_db);
 $name = req('search');
 $page = req('page', 1);
 $selectedCategories = isset($_GET['category_id']) ? (array) $_GET['category_id'] : [];
-$sort = req('sort');
+$sort = req(key: 'sort');
 $orderBy = '';
 
 switch ($sort) {
@@ -153,7 +153,7 @@ include '_head.php';
 
 <!-- Pagination -->
 <div style="display: flex; justify-content: center;">
-    <?= $p->html() ?>
+    <?= $p->html()?>
 </div>
 
 <?php include "_foot.php"; ?>
