@@ -6,9 +6,11 @@ checkRememberMe($_db);
 $name = req('search');
 $page = req('page', 1);
 $selectedCategories = isset($_GET['category_id']) ? (array) $_GET['category_id'] : [];
+
 $sort = req(key: 'sort');
 $orderBy = '';
 
+$orderBy = '';
 switch ($sort) {
     case 'name_asc':
         $orderBy = ' ORDER BY p.name ASC';
@@ -18,27 +20,42 @@ switch ($sort) {
         break;
 }
 
+$categoryCount = $_db->query("SELECT COUNT(*) FROM category")->fetchColumn();
+$selectAllCategories = count($selectedCategories) == $categoryCount;
+$almostSelectAll = count($selectedCategories) >= ($categoryCount - 1); // ✅ 新增：几乎全选
+
 require_once 'lib/SimplePager.php';
 
-if (!empty($selectedCategories)) {
+$params = [];
+$sql = "SELECT p.* FROM product p";
+
+$where = [];
+
+if (!empty($selectedCategories) && !$selectAllCategories && !$almostSelectAll) {
     $placeholders = implode(',', array_fill(0, count($selectedCategories), '?'));
-    // Adjust the SQL to ensure categories filter and search term are combined
-    $sql = "
-        SELECT DISTINCT p.* 
-        FROM product p
-        INNER JOIN category_product cp ON p.product_id = cp.product_id
-        WHERE cp.category_id IN ($placeholders)
-        AND (p.name LIKE ? OR p.author LIKE ? OR p.description LIKE ?)
-        $orderBy
-    ";
-    $params = array_merge($selectedCategories, ["%$name%", "%$name%", "%$name%"]);
-} else {
-    // When no categories are selected, just apply the search
-    $sql = 'SELECT p.* FROM product p WHERE p.name LIKE ? OR p.author LIKE ? OR p.description LIKE ?' . $orderBy;
-    $params = ["%$name%", "%$name%", "%$name%"];
+    $where[] = "EXISTS (
+                    SELECT 1 FROM category_product cp
+                    WHERE cp.product_id = p.product_id
+                      AND cp.category_id IN ($placeholders)
+                )";
+    $params = array_merge($params, $selectedCategories);
 }
 
-// Apply pagination
+if ($name !== '') {
+    $where[] = "(p.name LIKE ? OR p.author LIKE ? OR p.description LIKE ?)";
+    $params = array_merge($params, ["%$name%", "%$name%", "%$name%"]);
+}
+
+if (!empty($where)) {
+    $sql .= " WHERE " . implode(' AND ', $where);
+}
+
+$sql .= $orderBy;
+
+$query = $_GET;
+unset($query['page']);
+$href = http_build_query($query);
+
 $p = new SimplePager($sql, $params, 9, $page);
 $arr = $p->result;
 
@@ -72,43 +89,37 @@ include '_head.php';
 <div style="margin: 10px 0;">
     <strong>Sort by:</strong>
     <?php
-        $baseUrl = strtok($_SERVER["REQUEST_URI"], '?');
-        $queryParams = $_GET;
+    function makeSortUrl() {
+        $query = $_GET;
+        $currentSort = req('sort');
 
-        function makeSortUrl() {
-            $query = $_GET;
-            $currentSort = req('sort');
-        
-            if ($currentSort === 'name_asc') {
-                $query['sort'] = 'name_desc';
-            } else {
-                $query['sort'] = 'name_asc';
-            }
-        
-            return '?' . http_build_query($query);
-        }        
+        if ($currentSort === 'name_asc') {
+            $query['sort'] = 'name_desc';
+        } else {
+            $query['sort'] = 'name_asc';
+        }
+
+        return '?' . http_build_query($query);
+    }
     ?>
-    <a href="<?= makeSortUrl() ?>" 
-    style="<?= (req('sort') === 'name_asc' || req('sort') === 'name_desc') ? 'font-weight:bold;' : '' ?>">
+    <a href="<?= makeSortUrl() ?>"
+       style="<?= (req('sort') === 'name_asc' || req('sort') === 'name_desc') ? 'font-weight:bold;' : '' ?>">
         <?= req('sort') === 'name_desc' ? 'Z-A' : 'A-Z' ?>
     </a>
 </div>
 
 <div class="content-wrapper">
-    <!-- Sidebar Category List -->
     <div class="filterCategory">
         <h2>Category</h2>
         <form method="GET" id="categoryForm">
             <div class="categoryList">
                 <?php
                 $categoryArr = $_db->query('SELECT * FROM category')->fetchAll(PDO::FETCH_OBJ);
-                $selectedCategories = isset($_GET['category_id']) ? (array) $_GET['category_id'] : [];
-
                 foreach ($categoryArr as $category): ?>
                     <label>
                         <input type="checkbox" name="category_id[]" value="<?= htmlspecialchars($category->category) ?>"
-                            <?= in_array($category->category, $selectedCategories) ? 'checked' : '' ?>
-                            onchange="document.getElementById('categoryForm').submit();">
+                               <?= in_array($category->category, $selectedCategories) ? 'checked' : '' ?>
+                               onchange="document.getElementById('categoryForm').submit();">
                         <?= htmlspecialchars($category->name) ?>
                     </label><br>
                 <?php endforeach; ?>
@@ -120,7 +131,7 @@ include '_head.php';
         <?php if (empty($arr)): ?>
             <p>No products available.</p>
         <?php else: ?>
-            <?php foreach ($arr as $product): ?>    
+            <?php foreach ($arr as $product): ?>
                 <div class="gallery" id="gallery">
                     <div class="desc" style="display: none;">
                         <?= htmlspecialchars($product->product_id) ?>
@@ -133,15 +144,11 @@ include '_head.php';
                     ?>
 
                     <?php if (empty($photos)): ?>
-                        <img src="/images/default.png" 
-                            alt="Default Image" 
-                            onerror="this.onerror=null; this.src='/images/default.png';">
+                        <img src="/images/default.png" alt="Default Image" onerror="this.onerror=null; this.src='/images/default.png';">
                     <?php else: ?>
                         <?php foreach ($photos as $productPhoto): ?>
                             <a href="../page/productProfile.php?product_id=<?= htmlspecialchars($product->product_id) ?>">
-                                <img src="/images/<?= htmlspecialchars($productPhoto->product_photo) ?>" 
-                                    alt="Product Image" 
-                                    onerror="this.onerror=null; this.src='/images/default.png';">
+                                <img src="/images/<?= htmlspecialchars($productPhoto->product_photo) ?>" alt="Product Image" onerror="this.onerror=null; this.src='/images/default.png';">
                             </a>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -151,9 +158,8 @@ include '_head.php';
     </div>
 </div>
 
-<!-- Pagination -->
 <div style="display: flex; justify-content: center;">
-    <?= $p->html()?>
+    <?= $p->html($href) ?>
 </div>
 
 <?php include "_foot.php"; ?>
