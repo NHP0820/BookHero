@@ -52,3 +52,29 @@
 .search-form button:hover {
     background-color: #0056b3;
 }
+
+.btn {
+    background-color: #03A9F4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #0288D1;
+}
+
+.btn.active {
+    background-color: #01579B;
+}
+
+.unblock-btn {
+    background-color: #4CAF50;
+}
+
+.block-btn {
+    background-color: #f44336;
+}
