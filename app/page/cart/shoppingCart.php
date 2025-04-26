@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout'])) {
     }
 
     
-    $addrStmt = $_db->prepare("SELECT * FROM address WHERE user_id = ? LIMIT 1");
+    $addrStmt = $_db->prepare("SELECT * FROM address WHERE user_id = ? AND defaults = 1");
     $addrStmt->execute([$userId]);
     $address = $addrStmt->fetch(PDO::FETCH_OBJ);
 
