@@ -98,12 +98,12 @@ body {
 
     <div class="chart-wrapper">
         <div class="section chart-box">
-            <h2>📊 Top 5 Best-Selling Books</h2>
+            <h2> Top 5 Best-Selling Books</h2>
             <canvas id="topProductsChart"></canvas>
         </div>
 
         <div class="section chart-box">
-            <h2>📈 Book Sales Report</h2>
+            <h2> Book Sales Report</h2>
             <div class="button-group">
                 <button id="dailyBtn" onclick="showChart('daily')">Daily</button>
                 <button id="weeklyBtn" onclick="showChart('weekly')">Weekly</button>
@@ -124,7 +124,7 @@ $lowStockBooks = $lowStockStmt->fetchAll(PDO::FETCH_OBJ);
 ?>
 
 <div class="section">
-    <h2>📚 Low Stock Books (Less than 10 left)</h2>
+    <h2> Low Stock Books (Less than 10 left)</h2>
 
     <?php if (empty($lowStockBooks)): ?>
         <p style="text-align: center;">All stocks are healthy! ✅</p>
@@ -144,7 +144,7 @@ $lowStockBooks = $lowStockStmt->fetchAll(PDO::FETCH_OBJ);
                     <td style="text-align: center;"><?= $book->stock_quantity ?></td>
                     <td style="text-align: center;">
                         <a href="/page/productlist/update.php?id=<?= $book->product_id ?>" 
-                           style="background-color: #ff7043; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none;">
+                           style="background-color: #03a9f4; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none;">
                             Update
                         </a>
                     </td>
