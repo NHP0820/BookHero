@@ -112,7 +112,49 @@ body {
             <canvas id="salesChart"></canvas>
         </div>
     </div>
-    
+    <?php
+// check quantity < 10
+$lowStockStmt = $_db->query("
+    SELECT p.product_id, p.name, p.stock_quantity
+    FROM product p
+    WHERE p.stock_quantity < 10
+    ORDER BY p.stock_quantity ASC
+");
+$lowStockBooks = $lowStockStmt->fetchAll(PDO::FETCH_OBJ);
+?>
+
+<div class="section">
+    <h2>📚 Low Stock Books (Less than 10 left)</h2>
+
+    <?php if (empty($lowStockBooks)): ?>
+        <p style="text-align: center;">All stocks are healthy! ✅</p>
+    <?php else: ?>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid #ddd;">Book Name</th>
+                    <th style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">Stock Left</th>
+                    <th style="text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($lowStockBooks as $book): ?>
+                <tr>
+                    <td style="padding: 10px;"><?= htmlspecialchars($book->name) ?></td>
+                    <td style="text-align: center;"><?= $book->stock_quantity ?></td>
+                    <td style="text-align: center;">
+                        <a href="/page/productlist/update.php?id=<?= $book->product_id ?>" 
+                           style="background-color: #ff7043; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none;">
+                            Update
+                        </a>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
+</div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <?php
