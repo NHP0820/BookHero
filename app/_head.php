@@ -78,6 +78,12 @@ if (isset($_SESSION['user'])) {
             <?php else: ?>
                 <a href="/page/login.php">Cart</a>
             <?php endif; ?>
+                
+            <a href="/page/storeLocation.php">Our Store </a> 
+        
         </div>
+        
+
+
     </nav>
 <main>
