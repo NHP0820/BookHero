@@ -1,6 +1,7 @@
 <?php
 require '../../_base.php';
-include '../../_head.php';
+
+checkRememberMe($_db);
 
 $userId = $_SESSION['user']['id'] ?? null;
 
@@ -9,7 +10,6 @@ if (!$userId) {
     redirect("../login.php");
     exit;
 }
-
 
 $stmt = $_db->prepare("SELECT * FROM cart WHERE user_id = ?");
 $stmt->execute([$userId]);
@@ -98,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout'])) {
         redirect('shoppingCart.php');
     }
 }
+include '../../_head.php';
 ?>
 
 <link rel="stylesheet" href="../../css/shoppingCart.css">

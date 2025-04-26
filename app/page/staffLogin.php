@@ -45,7 +45,8 @@ if (is_post()) {
             'username' => $emails->username,
             'role' => $emails->role,
             'id' => $emails->user_id,
-            'email' => $emails->email
+            'email' => $emails->email,
+            'profile_image' =>$emails->profile_image
         ];
 
         temp('info', "$emails->username, Welcome to BookHero");

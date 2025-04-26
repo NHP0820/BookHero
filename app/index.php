@@ -1,24 +1,40 @@
 <?php
 require '_base.php';
 
+checkRememberMe($_db);
+
 $name = req('search');
 $page = req('page', 1);
 $selectedCategories = isset($_GET['category_id']) ? (array) $_GET['category_id'] : [];
+$sort = req('sort');
+$orderBy = '';
+
+switch ($sort) {
+    case 'name_asc':
+        $orderBy = ' ORDER BY p.name ASC';
+        break;
+    case 'name_desc':
+        $orderBy = ' ORDER BY p.name DESC';
+        break;
+}
 
 require_once 'lib/SimplePager.php';
 
 if (!empty($selectedCategories)) {
     $placeholders = implode(',', array_fill(0, count($selectedCategories), '?'));
+    // Adjust the SQL to ensure categories filter and search term are combined
     $sql = "
-        SELECT DISTINCT p.*
+        SELECT DISTINCT p.* 
         FROM product p
         INNER JOIN category_product cp ON p.product_id = cp.product_id
         WHERE cp.category_id IN ($placeholders)
         AND (p.name LIKE ? OR p.author LIKE ? OR p.description LIKE ?)
+        $orderBy
     ";
     $params = array_merge($selectedCategories, ["%$name%", "%$name%", "%$name%"]);
 } else {
-    $sql = 'SELECT * FROM product WHERE name LIKE ? OR author LIKE ? OR description LIKE ?';
+    // When no categories are selected, just apply the search
+    $sql = 'SELECT p.* FROM product p WHERE p.name LIKE ? OR p.author LIKE ? OR p.description LIKE ?' . $orderBy;
     $params = ["%$name%", "%$name%", "%$name%"];
 }
 
@@ -51,6 +67,31 @@ include '_head.php';
             <button type="submit"><i class="fa fa-search"></i></button>
         </form>
     </div>
+</div>
+
+<div style="margin: 10px 0;">
+    <strong>Sort by:</strong>
+    <?php
+        $baseUrl = strtok($_SERVER["REQUEST_URI"], '?');
+        $queryParams = $_GET;
+
+        function makeSortUrl() {
+            $query = $_GET;
+            $currentSort = req('sort');
+        
+            if ($currentSort === 'name_asc') {
+                $query['sort'] = 'name_desc';
+            } else {
+                $query['sort'] = 'name_asc';
+            }
+        
+            return '?' . http_build_query($query);
+        }        
+    ?>
+    <a href="<?= makeSortUrl() ?>" 
+    style="<?= (req('sort') === 'name_asc' || req('sort') === 'name_desc') ? 'font-weight:bold;' : '' ?>">
+        <?= req('sort') === 'name_desc' ? 'Z-A' : 'A-Z' ?>
+    </a>
 </div>
 
 <div class="content-wrapper">

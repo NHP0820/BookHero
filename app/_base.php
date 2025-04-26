@@ -8,6 +8,29 @@ date_default_timezone_set('Asia/Kuala_Lumpur');
 // TODO
 session_start();
 
+// -- Function to check remember me
+function checkRememberMe($db) {
+    if (!isset($_SESSION['user']) && isset($_COOKIE['remember_me'])) {
+        $token = $_COOKIE['remember_me'];
+
+        $stmt = $db->prepare("SELECT * FROM user WHERE remember_token = ?");
+        $stmt->execute([$token]);
+        $user = $stmt->fetch(PDO::FETCH_OBJ);
+
+        if ($user) {
+            $_SESSION['user'] = [
+                'username' => $user->username,
+                'id' => $user->user_id,
+                'role' => $user->role,
+                'email' => $user->email,
+                'profile_image' => $user->profile_image
+            ];
+        } else {
+            setcookie('remember_me', '', time() - 3600, "/");
+        }
+    }
+}
+
 // ============================================================================
 // General Page Functions
 // ============================================================================

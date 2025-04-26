@@ -210,8 +210,6 @@ include '../../_head.php';
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
-
-        <a href="checkout.php" class="back-link">Back to Checkout</a>
     </div>
 </body>
 </html>

@@ -39,6 +39,22 @@ $query = "SELECT * FROM user WHERE username LIKE ?  ORDER BY $sort $dir";
 $p = new SimplePager($query, ["%$name%"], 5, $page);
 $members = $p->result;
 
+if (is_post() && isset($_POST['action'])) {
+    $user_id = req('user_id');
+    $action = req('action');
+
+    if ($action == 'block') {
+        $stmt = $_db->prepare("UPDATE user SET block = 1 WHERE user_id = ?");
+        $stmt->execute([$user_id]);
+    } elseif ($action == 'unblock') {
+        $stmt = $_db->prepare("UPDATE user SET block = 0 WHERE user_id = ?");
+        $stmt->execute([$user_id]);
+    }
+
+    // Redirect to the same page to reflect changes
+    redirect($_SERVER['REQUEST_URI']);
+}
+
 // ----------------------------------------------------------------------------
 include '../_staffHead.php';
 ?>
@@ -67,12 +83,27 @@ include '../_staffHead.php';
         </tr>
         <?php foreach ($members as $member) { ?>
             <tr>
-                <td><?= $member->user_id?></td>
+                <td><?= $member->user_id ?></td>
                 <td><?= $member->username ?></td>
                 <td><?= $member->email ?></td>
                 <td><?= $member->role ?></td>
-                <td><img src="/images/<?=$member->profile_image ?? "default.png"   ?> " width="150px" height="150px" > </td>
-                
+                <td><img src="/images/<?=$member->profile_image ?? 'default.png'?>" width="150px" height="150px"></td>
+                <td>
+                    <!-- Block or Unblock buttons -->
+                    <?php if ($member->block == 1): ?>
+                        <form method="post" style="display:inline;">
+                            <input type="hidden" name="action" value="unblock">
+                            <input type="hidden" name="user_id" value="<?= $member->user_id ?>">
+                            <button type="submit" class="btn unblock-btn">Unblock</button>
+                        </form>
+                    <?php else: ?>
+                        <form method="post" style="display:inline;">
+                            <input type="hidden" name="action" value="block">
+                            <input type="hidden" name="user_id" value="<?= $member->user_id ?>">
+                            <button type="submit" class="btn block-btn">Block</button>
+                        </form>
+                    <?php endif; ?>
+                </td>
             </tr>
         <?php } ?>
     </table>

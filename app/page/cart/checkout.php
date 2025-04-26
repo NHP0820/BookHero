@@ -8,7 +8,10 @@ if (!isset($_SESSION['user'])) {
 }
 
 $userId = $_SESSION['user']['id'];
-$orderId = $_POST['order_id'] ?? null;
+$orderId = $_POST['order_id'] ?? $_SESSION['current_order_id'] ?? null;
+if ($orderId) {
+    $_SESSION['current_order_id'] = $orderId;
+}
 $payment_method = $_POST['payment_method'] ?? null;
 $errors = [];
 
@@ -44,9 +47,9 @@ if ($order) {
 }
 
 // address
-$addressStmt = $_db->prepare("SELECT * FROM address WHERE user_id = ? LIMIT 1");
+$addressStmt = $_db->prepare("SELECT * FROM address WHERE user_id = ?");
 $addressStmt->execute([$userId]);
-$address = $addressStmt->fetch(PDO::FETCH_OBJ);
+$addresses = $addressStmt->fetchAll(PDO::FETCH_OBJ);
 
 // payment
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $payment_method && empty($errors)) {
@@ -69,6 +72,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $payment_method && empty($errors)) 
         $errors[] = "Payment failed: " . $e->getMessage();
     }
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'set_default_address') {
+    $newDefaultId = intval($_POST['set_default_address_id']);
+    $orderId = $_POST['order_id']; 
+
+    $unsetStmt = $_db->prepare("UPDATE address SET defaults = 0 WHERE user_id = ?");
+    $unsetStmt->execute([$userId]);
+
+    $setStmt = $_db->prepare("UPDATE address SET defaults = 1 WHERE user_id = ? AND address_id = ?");
+    $setStmt->execute([$userId, $newDefaultId]);
+
+    header("Location: checkout.php");
+    exit;
+}
 ?>
 
 <link rel="stylesheet" href="../../css/checkout.css">
@@ -89,6 +106,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $payment_method && empty($errors)) 
             </ul>
         </div>
     <?php endif; ?>
+
+    <div class="checkout-section">
+        <h2 class="section-title">Delivery Address</h2>
+
+        <?php if (!empty($addresses)): ?>
+            <form method="post" action="checkout.php">
+                <input type="hidden" name="action" value="set_default_address">
+                <input type="hidden" name="order_id" value="<?= $orderId ?>">
+                <?php foreach ($addresses as $addr): ?>
+                    <div class="address-box" style="margin-bottom: 10px;">
+                        <label>
+                            <input type="radio" name="set_default_address_id" value="<?= $addr->address_id ?>"
+                                <?= $addr->defaults ? 'checked' : '' ?> onchange="this.form.submit()">
+                            <strong><?= htmlspecialchars($addr->address_name ?? 'Address') ?></strong><br>
+                            <?= htmlspecialchars($addr->street) ?>,
+                            <?= htmlspecialchars($addr->zip_code) ?>,
+                            <?= htmlspecialchars($addr->city) ?>,
+                            <?= htmlspecialchars($addr->state) ?>,
+                            <?= htmlspecialchars($addr->country) ?>
+                            <?= $addr->defaults ? '<span style="color: green;"> (Default)</span>' : '' ?>
+                        </label>
+                    </div>
+                <?php endforeach; ?>
+            </form>
+        <?php else: ?>
+            <p>You don't have any saved addresses. Please add one to continue.</p>
+            <a href="addresses.php" class="back-button">Add Address</a>
+        <?php endif; ?>
+    </div>
 
     <?php if ($order): ?>
         <form method="post" action="">
@@ -139,23 +185,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $payment_method && empty($errors)) 
             </div>
 
             <div class="checkout-section">
-<<<<<<< HEAD
-    <h2 class="section-title">Delivery Address</h2>
-    <?php if ($address): ?>
-        <div class="address-box">
-            <strong><?= htmlspecialchars($address->address_name ?? 'Default Address') ?></strong><br>
-            <?= htmlspecialchars($address->street) ?><br>
-            <?= htmlspecialchars($address->city) ?>, <?= htmlspecialchars($address->state) ?> <?= htmlspecialchars($address->zip_code) ?><br>
-            <?= htmlspecialchars($address->country) ?>
-        </div>
-        <a href="addresses.php?edit=<?= $address->address_id ?>" class="edit-button">Edit Address</a>
-    <?php else: ?>
-        <p>You don't have any saved address. Please add an address to continue.</p>
-        <a href="addresses.php" class="back-button">Add Address</a>
-    <?php endif; ?>
-        </div>
-
-            <div class="checkout-section">
                 <h2 class="section-title">Payment Method</h2>
                 <div class="payment-options">
                     <label class="payment-option">
@@ -172,28 +201,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $payment_method && empty($errors)) 
                     </label>
                 </div>
                 <p><small>* Payment details will be collected on the next page</small></p>
-=======
-                <h2 class="section-title">Delivery Address</h2>
-                <?php if ($address): ?>
-                    <div class="address-box">
-                        <strong><?= htmlspecialchars($address->address_name ?? 'Default Address') ?></strong><br>
-                        <?= htmlspecialchars($address->street) ?><br>
-                        <?= htmlspecialchars($address->city) ?>, <?= htmlspecialchars($address->state) ?> <?= htmlspecialchars($address->zip_code) ?><br>
-                        <?= htmlspecialchars($address->country) ?>
-                    </div>
-                <?php else: ?>
-                    <p>No address found.</p>
-                <?php endif; ?>
->>>>>>> f70716967a563732b1ae2eb0deb21a820aefb2e8
-            </div>
-
-            <div class="checkout-section">
-                <h2 class="section-title">Select Payment Method</h2>
-                <div class="payment-options">
-                    <label><input type="radio" name="payment_method" value="Credit Card" checked> Credit Card</label><br>
-                    <label><input type="radio" name="payment_method" value="Online Banking"> Online Banking</label><br>
-                    <label><input type="radio" name="payment_method" value="E-Wallet"> E-Wallet</label>
-                </div>
             </div>
 
             <button type="submit" class="place-order-button">Confirm Payment</button>

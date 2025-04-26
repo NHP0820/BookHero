@@ -25,14 +25,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['username'] = 'Username is required.';
     }
 
-    $imagePath = $user['profile_image'] ?? '/../images/default.jpg';
+    $imagePath = $user['profile_image'] ?? 'default.png';
 
     if (!empty($_FILES['profile_image']['tmp_name'])) {
         try {
             $imagePath = save_photo((object) $_FILES['profile_image'], __DIR__ . '/../images');
 
             if ($user['profile_image'] !== 'default.jpg') {
-                $oldPath = __DIR__ . '/../images' . $user['profile_image'];
+                $oldPath = __DIR__ . '../images' . $user['profile_image'];
                 if (file_exists($oldPath)) unlink($oldPath);
             }
         } catch (Exception $e) {
@@ -60,25 +60,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_address_id'])) {
     $addressId = $_POST['delete_address_id'];
 
-    $stmt = $_db->prepare("DELETE FROM address WHERE address_id = ? AND user_id = ?");
-    $stmt->execute([$addressId, $user['user_id']]);
+    $stmt = $_db->prepare("DELETE FROM address WHERE address_id = ?");
+    $stmt->execute([$addressId]);
 
     temp('info', 'Address deleted successfully.');
     redirect('memberProfile.php');
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['set_default_address_id'])) {
+    $addressId = $_POST['set_default_address_id'];
+
+    $stmt = $_db->prepare("UPDATE address SET defaults = 0 WHERE user_id = ?");
+    $stmt->execute([$user['id']]);
+
+    $stmt = $_db->prepare("UPDATE address SET defaults = 1 WHERE address_id = ? AND user_id = ?");
+    $stmt->execute([$addressId, $user['id']]);
+
+    temp('info', 'Address set as default successfully.');
+    redirect('memberProfile.php');
+    exit;
+}
+
+
 
 $_title = 'Member Profile';
 
 include '../_head.php';
 ?>
-
+<style>
+    .add_new_address{
+        text-decoration: none;
+        color: black;
+    }
+    .add_new_address:hover{
+        color: blue;
+    }
+</style>
 <link rel="stylesheet" href="/css/memberProfile.css">
 <div class="full-page-profile">
     <div class="profile-sidebar">
         <div class="profile-image-container">
-            <img id="previewImage" src="../images/<?= htmlspecialchars($user['profile_image'] ?? '/../images/default.jpg') ?>" 
+            <img id="previewImage" src="../images/<?= htmlspecialchars($user['profile_image'] ?? 'default.png') ?>" 
                  alt="Profile Image" class="profile-img">
         </div>
 
@@ -92,7 +115,7 @@ include '../_head.php';
         <h1>Member Profile</h1>
         <div class="address-info">
             <h2>Address Information</h2>
-            <a href="cart/addresses.php">Add New Address</a>
+            <a href="cart/addresses.php" class="add_new_address">Add New Address</a>
             <?php if ($addresses): ?>
                 <table class="address-table">
                     <thead>
@@ -121,6 +144,12 @@ include '../_head.php';
                                         <input type="hidden" name="delete_address_id" value="<?= $address['address_id'] ?>">
                                         <input type="submit" value="Delete" style="color: red;" onclick="return confirm('Are you sure you want to delete this address?')">
                                     </form>
+                                    <?php if (!$address['defaults']): ?>
+                                        | <form method="post" style="display: inline;">
+                                            <input type="hidden" name="set_default_address_id" value="<?= $address['address_id'] ?>">
+                                            <input type="submit" value="Set as Default" style="color: green;">
+                                        </form>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
