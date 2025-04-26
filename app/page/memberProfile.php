@@ -18,43 +18,48 @@ $stmt->execute([$user['id']]);
 $addresses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
-    $errors = [];
+    $action = $_POST['action'] ?? '';
 
-    if (empty($username)) {
-        $errors['username'] = 'Username is required.';
-    }
+    if ($action === 'update_profile') {
+        // Handle profile update (username, profile image)
+        $username = trim($_POST['username'] ?? '');
+        $errors = [];
 
-    $imagePath = $user['profile_image'] ?? 'default.png';
+        if (empty($username)) {
+            $errors['username'] = 'Username is required.';
+        }
 
-    if (!empty($_FILES['profile_image']['tmp_name'])) {
-        try {
-            $imagePath = save_photo((object) $_FILES['profile_image'], __DIR__ . '/../images');
+        $imagePath = $user['profile_image'] ?? 'default.png';
 
-            if ($user['profile_image'] !== 'default.jpg') {
-                $oldPath = __DIR__ . '../images' . $user['profile_image'];
-                if (file_exists($oldPath)) unlink($oldPath);
+        if (!empty($_FILES['profile_image']['tmp_name'])) {
+            try {
+                $imagePath = save_photo((object) $_FILES['profile_image'], __DIR__ . '/../images');
+
+                if ($user['profile_image'] !== 'default.jpg') {
+                    $oldPath = __DIR__ . '/../images/' . $user['profile_image'];
+                    if (file_exists($oldPath)) unlink($oldPath);
+                }
+            } catch (Exception $e) {
+                $errors['profile_image'] = 'Failed to upload profile image.';
             }
-        } catch (Exception $e) {
-            $errors['profile_image'] = 'Failed to upload profile image.';
         }
-    }
 
-    if (empty($errors)) {
-        $stmt = $_db->prepare("UPDATE user SET username = ?, profile_image = ? WHERE user_id = ?");
-        $stmt->execute([$username, $imagePath, $user['id']]);
+        if (empty($errors)) {
+            $stmt = $_db->prepare("UPDATE user SET username = ?, profile_image = ? WHERE user_id = ?");
+            $stmt->execute([$username, $imagePath, $user['id']]);
 
-        $_SESSION['user']['username'] = $username;
-        $_SESSION['user']['profile_image'] = $imagePath;
+            $_SESSION['user']['username'] = $username;
+            $_SESSION['user']['profile_image'] = $imagePath;
 
-        temp('info', 'Profile updated successfully.');
-        redirect('/page/memberProfile.php');
-        exit;
-    } else {
-        foreach ($errors as $key => $value) {
-            err($key, $value);
+            temp('info', 'Profile updated successfully.');
+            redirect('/page/memberProfile.php');
+            exit;
+        } else {
+            foreach ($errors as $key => $value) {
+                err($key, $value);
+            }
         }
-    }
+    } 
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_address_id'])) {
@@ -82,7 +87,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['set_default_address_i
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'change_password') {
+    $currentPassword = $_POST['current_password'] ?? '';
+    $newPassword = $_POST['new_password'] ?? '';
+    $confirmPassword = $_POST['confirm_password'] ?? '';
 
+    $errors = [];
+
+    $stmt = $_db->prepare("SELECT password FROM user WHERE user_id = ?");
+    $stmt->execute([$user['id']]);
+    $userPassword = $stmt->fetchColumn();
+
+    if (!password_verify($currentPassword, $userPassword)) {
+        $errors['current_password'] = 'Current password is incorrect.';
+    } elseif ($newPassword !== $confirmPassword) {
+        $errors['confirm_password'] = 'New passwords do not match.';
+    } elseif (strlen($newPassword) < 6) {
+        $errors['new_password'] = 'New password must be at least 6 characters.';
+    }
+
+    if (empty($errors)) {
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        $stmt = $_db->prepare("UPDATE user SET password = ? WHERE user_id = ?");
+        $stmt->execute([$hashedPassword, $user['id']]);
+
+        temp('info', 'Password changed successfully.');
+        redirect('/page/memberProfile.php');
+        exit;
+    } else {
+        foreach ($errors as $key => $value) {
+            err($key, $value);
+        }
+    }
+}if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'change_password') {
+    $currentPassword = $_POST['current_password'] ?? '';
+    $newPassword = $_POST['new_password'] ?? '';
+    $confirmPassword = $_POST['confirm_password'] ?? '';
+
+    $errors = [];
+
+    $stmt = $_db->prepare("SELECT password FROM user WHERE user_id = ?");
+    $stmt->execute([$user['id']]);
+    $userPassword = $stmt->fetchColumn();
+
+    if (!password_verify($currentPassword, $userPassword)) {
+        $errors['current_password'] = 'Current password is incorrect.';
+    } elseif ($newPassword !== $confirmPassword) {
+        $errors['confirm_password'] = 'New passwords do not match.';
+    } elseif (strlen($newPassword) < 6) {
+        $errors['new_password'] = 'New password must be at least 6 characters.';
+    }
+
+    if (empty($errors)) {
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        $stmt = $_db->prepare("UPDATE user SET password = ? WHERE user_id = ?");
+        $stmt->execute([$hashedPassword, $user['id']]);
+
+        temp('info', 'Password changed successfully.');
+        redirect('/page/memberProfile.php');
+        exit;
+    } else {
+        foreach ($errors as $key => $value) {
+            err($key, $value);
+        }
+    }
+}
 
 $_title = 'Member Profile';
 
@@ -161,6 +230,7 @@ include '../_head.php';
         </div>
 
         <form method="post" enctype="multipart/form-data" class="profile-form">
+            <input type="hidden" name="action" value="update_profile">
             <div class="form-section">
                 <h2>Account Information</h2>
 
@@ -194,6 +264,37 @@ include '../_head.php';
                 <button type="submit" class="update-btn">
                     <i class="fa fa-save"></i> Update Profile
                 </button>
+            </div>
+        </form>
+
+        <form method="post" class="profile-form">
+            <input type="hidden" name="action" value="change_password">
+            <div class="form-section">
+                <h2>Change Password</h2>
+
+                <div class="form-row">
+                    <label for="current_password">Current Password</label>
+                    <input type="password" id="current_password" name="current_password" required>
+                    <?= err('current_password') ?>
+                </div>
+
+                <div class="form-row">
+                    <label for="new_password">New Password</label>
+                    <input type="password" id="new_password" name="new_password" required>
+                    <?= err('new_password') ?>
+                </div>
+
+                <div class="form-row">
+                    <label for="confirm_password">Confirm New Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required>
+                    <?= err('confirm_password') ?>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="update-btn">
+                        <i class="fa fa-lock"></i> Change Password
+                    </button>
+                </div>
             </div>
         </form>
     </div>

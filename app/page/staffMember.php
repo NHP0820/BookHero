@@ -42,7 +42,7 @@ if (is_post() && isset($_POST['action'])) {
         $stmt = $_db->prepare("UPDATE user SET block = 1 WHERE user_id = ?");
         $stmt->execute([$user_id]);
     } elseif ($action == 'unblock') {
-        $stmt = $_db->prepare("UPDATE user SET block = 0 WHERE user_id = ?");
+        $stmt = $_db->prepare("UPDATE user SET block = 0, block_count = 0 WHERE user_id = ?");
         $stmt->execute([$user_id]);
     }
 
