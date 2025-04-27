@@ -6,6 +6,8 @@ checkRememberMe($_db);
 $name = req('search');
 $page = req('page', 1);
 $selectedCategories = isset($_GET['category_id']) ? (array) $_GET['category_id'] : [];
+$minPrice = req('min_price');
+$maxPrice = req('max_price');
 
 $sort = req(key: 'sort');
 $orderBy = '';
@@ -22,7 +24,7 @@ switch ($sort) {
 
 $categoryCount = $_db->query("SELECT COUNT(*) FROM category")->fetchColumn();
 $selectAllCategories = count($selectedCategories) == $categoryCount;
-$almostSelectAll = count($selectedCategories) >= ($categoryCount - 1); // ✅ 新增：几乎全选
+$almostSelectAll = count($selectedCategories) >= ($categoryCount - 1);
 
 require_once 'lib/SimplePager.php';
 
@@ -44,6 +46,16 @@ if (!empty($selectedCategories) && !$selectAllCategories && !$almostSelectAll) {
 if ($name !== '') {
     $where[] = "(p.name LIKE ? OR p.author LIKE ? OR p.description LIKE ?)";
     $params = array_merge($params, ["%$name%", "%$name%", "%$name%"]);
+}
+
+if ($minPrice !== '') {
+    $where[] = "p.price >= ?";
+    $params[] = $minPrice;
+}
+
+if ($maxPrice !== '') {
+    $where[] = "p.price <= ?";
+    $params[] = $maxPrice;
 }
 
 if (!empty($where)) {
@@ -81,6 +93,10 @@ include '_head.php';
     <div class="search-container">
         <form method="get">
             <?= html_search('search') ?>
+
+            <input type="number" name="min_price" placeholder="Min Price" value="<?= htmlspecialchars(req('min_price')) ?>" step="0.01" style="width:100px;">
+            <input type="number" name="max_price" placeholder="Max Price" value="<?= htmlspecialchars(req('max_price')) ?>" step="0.01" style="width:100px;">
+
             <button type="submit"><i class="fa fa-search"></i></button>
         </form>
     </div>

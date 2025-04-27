@@ -23,10 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'update_profile') {
         // Handle profile update (username, profile image)
         $username = trim($_POST['username'] ?? '');
-        $errors = [];
 
         if (empty($username)) {
-            $errors['username'] = 'Username is required.';
+            $_err['username'] = 'Username is required.';
         }
 
         $imagePath = $user['profile_image'] ?? 'default.png';
@@ -40,11 +39,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (file_exists($oldPath)) unlink($oldPath);
                 }
             } catch (Exception $e) {
-                $errors['profile_image'] = 'Failed to upload profile image.';
+                $_err['profile_image'] = 'Failed to upload profile image.';
             }
         }
 
-        if (empty($errors)) {
+        if (empty($_err)) {
             $stmt = $_db->prepare("UPDATE user SET username = ?, profile_image = ? WHERE user_id = ?");
             $stmt->execute([$username, $imagePath, $user['id']]);
 
@@ -55,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect('/page/memberProfile.php');
             exit;
         } else {
-            foreach ($errors as $key => $value) {
+            foreach ($_err as $key => $value) {
                 err($key, $value);
             }
         }
@@ -92,21 +91,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'chang
     $newPassword = $_POST['new_password'] ?? '';
     $confirmPassword = $_POST['confirm_password'] ?? '';
 
-    $errors = [];
-
     $stmt = $_db->prepare("SELECT password FROM user WHERE user_id = ?");
     $stmt->execute([$user['id']]);
     $userPassword = $stmt->fetchColumn();
 
     if (!password_verify($currentPassword, $userPassword)) {
-        $errors['current_password'] = 'Current password is incorrect.';
+        $_err['current_password'] = 'Current password is incorrect.';
     } elseif ($newPassword !== $confirmPassword) {
-        $errors['confirm_password'] = 'New passwords do not match.';
+        $_err['confirm_password'] = 'New passwords do not match.';
     } elseif (strlen($newPassword) < 6) {
-        $errors['new_password'] = 'New password must be at least 6 characters.';
+        $_err['new_password'] = 'New password must be at least 6 characters.';
     }
 
-    if (empty($errors)) {
+    if (empty($_err)) {
         $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
         $stmt = $_db->prepare("UPDATE user SET password = ? WHERE user_id = ?");
         $stmt->execute([$hashedPassword, $user['id']]);
@@ -115,39 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'chang
         redirect('/page/memberProfile.php');
         exit;
     } else {
-        foreach ($errors as $key => $value) {
-            err($key, $value);
-        }
-    }
-}if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'change_password') {
-    $currentPassword = $_POST['current_password'] ?? '';
-    $newPassword = $_POST['new_password'] ?? '';
-    $confirmPassword = $_POST['confirm_password'] ?? '';
-
-    $errors = [];
-
-    $stmt = $_db->prepare("SELECT password FROM user WHERE user_id = ?");
-    $stmt->execute([$user['id']]);
-    $userPassword = $stmt->fetchColumn();
-
-    if (!password_verify($currentPassword, $userPassword)) {
-        $errors['current_password'] = 'Current password is incorrect.';
-    } elseif ($newPassword !== $confirmPassword) {
-        $errors['confirm_password'] = 'New passwords do not match.';
-    } elseif (strlen($newPassword) < 6) {
-        $errors['new_password'] = 'New password must be at least 6 characters.';
-    }
-
-    if (empty($errors)) {
-        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-        $stmt = $_db->prepare("UPDATE user SET password = ? WHERE user_id = ?");
-        $stmt->execute([$hashedPassword, $user['id']]);
-
-        temp('info', 'Password changed successfully.');
-        redirect('/page/memberProfile.php');
-        exit;
-    } else {
-        foreach ($errors as $key => $value) {
+        foreach ($_err as $key => $value) {
             err($key, $value);
         }
     }
@@ -248,13 +213,15 @@ include '../_head.php';
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" 
                            value="<?= htmlspecialchars($user['username'] ?? '') ?>">
-                    <?= err('username') ?>
                 </div>
+                <?= err('username') ?>
 
                 <div class="form-row image-row">
                     <label for="profile_image">Profile Image</label>
-                    <div class="image-preview-wrapper">
-                        <input type="file" name="profile_image" id="profile_image" accept="image/*" onchange="previewImage(event)">
+                    <div class="drop-zone" id="dropZone">
+                    <img id="previewImage" src="../images/<?= htmlspecialchars($user['profile_image'] ?? 'default.png') ?>" alt="Profile Image" class="profile-img">
+                        <input type="file" name="profile_image" id="profile_image" accept="image/*" style="display: none;">
+                        <p id="dropText">Drag & drop or click to upload</p>
                     </div>
                     <?= err('profile_image') ?>
                 </div>
@@ -275,20 +242,20 @@ include '../_head.php';
                 <div class="form-row">
                     <label for="current_password">Current Password</label>
                     <input type="password" id="current_password" name="current_password" required>
-                    <?= err('current_password') ?>
                 </div>
+                <?= err('current_password') ?>
 
                 <div class="form-row">
                     <label for="new_password">New Password</label>
                     <input type="password" id="new_password" name="new_password" required>
-                    <?= err('new_password') ?>
                 </div>
+                <?= err('new_password') ?>
 
                 <div class="form-row">
                     <label for="confirm_password">Confirm New Password</label>
                     <input type="password" id="confirm_password" name="confirm_password" required>
-                    <?= err('confirm_password') ?>
                 </div>
+                <?= err('confirm_password') ?>
 
                 <div class="form-actions">
                     <button type="submit" class="update-btn">
@@ -301,13 +268,54 @@ include '../_head.php';
 </div>
 
 <script>
-function previewImage(event) {
-    const [file] = event.target.files;
-    if (file) {
-        const preview = document.getElementById('previewImage');
-        preview.src = URL.createObjectURL(file);
+document.addEventListener('DOMContentLoaded', function () {
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('profile_image');
+    const preview = document.getElementById('previewImage');
+    const dropText = document.getElementById('dropText');
+
+    // Click dropzone to open file dialog
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    // Handle file select normally
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+            updatePreview(e.target.files[0]);
+        }
+    });
+
+    // Handle drag over
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    // Handle drag leave
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    // Handle drop
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+
+        if (e.dataTransfer.files.length) {
+            const file = e.dataTransfer.files[0];
+            fileInput.files = e.dataTransfer.files;
+            updatePreview(file);
+        }
+    });
+
+    function updatePreview(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            preview.src = e.target.result;
+            dropText.textContent = 'Image selected!';
+        };
+        reader.readAsDataURL(file);
     }
-}
+});
 </script>
 
 <style>

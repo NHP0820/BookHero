@@ -50,12 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout'])) {
     $addrStmt = $_db->prepare("SELECT * FROM address WHERE user_id = ? AND defaults = 1");
     $addrStmt->execute([$userId]);
     $address = $addrStmt->fetch(PDO::FETCH_OBJ);
-
-    if (!$address) {
-        temp('info', 'Please add your shipping address before proceeding.');
-        redirect('shoppingCart.php');
-    }
-
     
     foreach ($cartItems as $item) {
         if ($item->quantity > $item->stock_quantity) {
@@ -68,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout'])) {
         $_db->beginTransaction();
 
        
-        $orderStmt = $_db->prepare("INSERT INTO `order` (user_id, order_date, total_amount, status_id, address_id, expired_time) VALUES (?, NOW(), ?, 1, ?, DATE_ADD(NOW(), INTERVAL 6 HOUR))");
-        $orderStmt->execute([$userId, $total, $address->address_id]);
+        $orderStmt = $_db->prepare("INSERT INTO `order` (user_id, order_date, total_amount, status_id, address_id, expired_time) VALUES (?, NOW(), ?, 1, NULL, DATE_ADD(NOW(), INTERVAL 6 HOUR))");
+        $orderStmt->execute([$userId, $total]);
         $orderId = $_db->lastInsertId();
 
     

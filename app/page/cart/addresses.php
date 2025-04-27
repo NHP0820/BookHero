@@ -68,11 +68,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $updateStmt->execute([$street, $city, $state, $zipCode, $country, $addressId, $userId]);
                     $success = "Address updated successfully.";
                 } else {
+                    $countStmt = $_db->prepare("SELECT COUNT(*) FROM address WHERE user_id = ?");
+                    $countStmt->execute([$userId]);
+                    $addressCount = $countStmt->fetchColumn();
+
+                    $defaultValue = ($addressCount == 0) ? 1 : 0;
+
                     $insertStmt = $_db->prepare("
-                        INSERT INTO address (user_id, street, city, state, zip_code, country)
-                        VALUES (?, ?, ?, ?, ?, ?)
+                        INSERT INTO address (user_id, street, city, state, zip_code, country, defaults)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
                     ");
-                    $insertStmt->execute([$userId, $street, $city, $state, $zipCode, $country]);
+                    $insertStmt->execute([$userId, $street, $city, $state, $zipCode, $country, $defaultValue]);
+
                     $success = "Address added successfully.";
                 }
                 

@@ -57,6 +57,12 @@ $address = $addressStmt->fetch(PDO::FETCH_OBJ);
 
 // payment
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $payment_method && empty($errors)) {
+    if (!$address) {
+        $errors[] = "Please add a delivery address before proceeding with payment.";
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $payment_method && empty($errors)) {
     try {
         $_db->beginTransaction();
 
