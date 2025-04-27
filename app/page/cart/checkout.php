@@ -142,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         </label>
                     </div>
                 <?php endforeach; ?>
+                <a href="addresses.php" class="back-button">Add New Address</a>
             </form>
         <?php else: ?>
             <p>You don't have any saved addresses. Please add one to continue.</p>
