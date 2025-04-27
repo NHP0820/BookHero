@@ -73,18 +73,30 @@ try {
         ]);
     }
 
+    // Reduce product stock
+    $updateProductStmt = $_db->prepare(
+        "UPDATE product SET stock_quantity = stock_quantity - ? WHERE product_id = ?"
+    );
+
+    foreach ($cartItems as $item) {
+        $updateProductStmt->execute([
+            $item->quantity,
+            $item->product_id
+        ]);
+    }
+
     // Clear cart
     $clearCartStmt = $_db->prepare("DELETE FROM cart_item WHERE cart_id = ?");
     $clearCartStmt->execute([$cart->cart_id]);
 
     $_db->commit();
 
-    temp('info', 'You have successfully create order');
+    temp('info', 'You have successfully created an order');
     echo json_encode(['status' => 'success', 'order_id' => $orderId]);
     exit();
 } catch (Exception $e) {
     $_db->rollBack();
-    temp('info', 'Your order fail to be create');
+    temp('info', 'Your order failed to be created');
     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     exit();
 }
